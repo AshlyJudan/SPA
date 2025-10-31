@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surabhi Pytha Academy - 3D CAD Training</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font --><link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Load GSAP for smooth animations --><script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script> 
+    <!-- Load THREE.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- NEW: Load OrbitControls for professional camera movement --><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- NEW: Load OBJLoader for handling drag and drop models --><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <!-- NEW: Load jsPDF for client-side PDF generation --><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        /* Custom colors based on user request */
+        :root {
+            --color-accent: #FFDA97; /* Light Gold */
+            --color-dark: #000000;  /* Royal Black */
+            --color-cream: #F8F4E3; /* Added Cream color */
+            /* Default/fallback for header height before JS calculates it */
+            --header-height: 100px; 
+        }
+        .bg-accent { background-color: var(--color-accent); }
+        .text-accent { color: var(--color-accent); }
+        .border-accent { border-color: var(--color-accent); }
+        .bg-cream { background-color: var(--color-cream); } /* Added cream background class */
+
+        /* Ensure smooth scrolling for navigation and overall aesthetic */
+        html { scroll-behavior: smooth; font-family: 'Inter', sans-serif; }
+        
+        /* Set header to be on top of the screen */
+        #main-header {
+            /* Smooth transition for the transform (set to 0.8s as requested) */
+            transition: transform 0.8s ease-in-out; 
+        }
+        
+        /* Custom Spinner for Loading State */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--color-accent);
+            animation: spin 1s ease infinite;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Ensure three.js canvas fills its container */
+        #three-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            /* Update cursor hint for OrbitControls */
+            cursor: move; 
+            border-radius: 12px; /* Match the container's rounded-2xl look */
+        }
+
+        /* Add padding to the top of the body to prevent content from hiding under the fixed header */
+        body {
+           padding-top: var(--header-height); /* Use the dynamic header height */
+        }
+        /* Adjust hero section padding since body now has padding */
+          #hero {
+             padding-top: 0 !important; /* Override inline style */
+             padding-bottom: 5rem; /* Keep original bottom padding */
+             margin-top: 4rem; /* Add some space between header and hero */
+        }
+        
+        /* Updated background for Three.js container to match bg-cream */
+        #three-container {
+             background-color: var(--color-cream); /* Use cream variable */
+        }
+
+
+    </style>
+</head>
+<body class="bg-white text-[var(--color-dark)] overflow-x-hidden">
+
+    <!-- Header & Navigation - FIXED --><header id="main-header" class="bg-[var(--color-dark)] fixed top-0 w-full z-50 shadow-xl border-b border-accent/20">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center relative z-10">
+            <!-- Updated Logo Structure --><a href="#hero" class="font-extrabold tracking-widest transition duration-300 hover:scale-[1.01] drop-shadow-lg flex flex-col leading-none">
+                <span class="text-4xl sm:text-5xl leading-none text-accent">SURABHI</span>
+                <span class="text-lg md:text-xl text-white mt-[-4px]">PYTHA ACADEMY</span>
+            </a>
+            
+            <!-- Enhanced Navigation (Removed Features link) --><nav class="hidden md:flex space-x-8 font-medium text-white items-center">
+                <a href="#course-overview" class="nav-link hover:text-accent transition duration-300 relative group py-1">Overview<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
+                <a href="#syllabus" class="nav-link hover:text-accent transition duration-300 relative group py-1">Syllabus<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
+                <a href="#ai-renderer" class="nav-link hover:text-accent transition duration-300 relative group py-1">AI Renderer 🎨<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
+                <a href="#contact" class="nav-link hover:text-accent transition duration-300 relative group py-1">Contact<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
+            </nav>
+            <button onclick="openApplicationModal()" class="hidden md:block bg-accent text-[var(--color-dark)] py-2 px-6 rounded-xl font-bold shadow-lg hover:bg-white hover:shadow-2xl transition duration-300 transform hover:scale-[1.05]">Enroll Now</button>
+            <!-- Mobile Menu Button - Placeholder --><button class="md:hidden text-2xl text-accent">☰</button>
+        </div>
+    </header>
+
+    <!-- 1. Hero Section - Adjusted padding --><section id="hero" class="relative overflow-hidden bg-white">
+        <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+            <!-- Text Content --><div class="hero-content">
+                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4 tracking-tighter">
+                    Master the Art of <span class="text-accent">3D CAD Production</span>
+                </h1>
+                <p class="text-lg text-gray-600 mb-8">
+                    From detailed design and high-end visualization to CNC-ready manufacturing—Surabhi Pytha Academy empowers you with industry-leading skills.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#course-overview" class="cta-button bg-accent text-[var(--color-dark)] font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:scale-105">
+                        Explore 4-Week Course
+                    </a>
+                    <a href="#syllabus" class="text-gray-700 font-medium py-3 px-8 rounded-xl border border-gray-300 hover:border-accent hover:text-accent transition duration-300">
+                        View Details
+                    </a>
+                </div>
+            </div>
+
+            <!-- Visual Placeholder (INTERACTIVE 3D CHAIR) --><div class="hero-visual p-8 bg-cream rounded-2xl shadow-xl border border-gray-200 flex justify-center items-center h-80 relative group" id="three-container">
+                <!-- three.js canvas will be injected here. Drag this object to orbit (left click) or pan (right click/Ctrl+Left) --><!-- Drag and Drop Overlay/Message --><div id="dnd-message" class="absolute inset-0 flex flex-col items-center justify-center text-center text-gray-700 pointer-events-none transition-opacity duration-300 bg-cream/70 rounded-2xl z-20 opacity-0">
+                    <p class="text-lg font-bold">Drag & Drop 3D Model Here (.obj)</p>
+                    <p class="text-sm mt-1">Files like .skp, .max must first be converted.</p>
+                </div>
+                <p class="absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none text-sm z-10">
+                    Orbit, Pan, and Zoom this 3D Model
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Course Overview (The 4 Pillars) - UPDATED background --><section id="course-overview" class="py-16 md:py-24 bg-cream"> 
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12">The 4 Pillars of Pytha Mastery</h2>
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Pillar Cards remain the same (bg-white) --><div class="pillar-card p-6 bg-white rounded-xl shadow-lg border-t-4 border-accent transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
+                    <span class="text-3xl font-extrabold text-accent mb-2 block">01</span>
+                    <h3 class="text-xl font-semibold mb-2">3D MODELLING</h3>
+                    <p class="text-gray-600 text-sm">Learn UI, geometry, basic tools, cabinet making, and advanced techniques like Loft, Revolve, and Sweep for complex furniture design.</p>
+                </div>
+                <div class="pillar-card p-6 bg-white rounded-xl shadow-lg border-t-4 border-accent transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
+                    <span class="text-3xl font-extrabold text-accent mb-2 block">02</span>
+                    <h3 class="text-xl font-semibold mb-2">PRESENTATION</h3>
+                    <p class="text-gray-600 text-sm">Master scene setup, camera angles, lighting (HDRI), texture creation, and high-end 360 Degree Panorama rendering for client visualization.</p>
+                </div>
+                   <div class="pillar-card p-6 bg-white rounded-xl shadow-lg border-t-4 border-accent transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
+                    <span class="text-3xl font-extrabold text-accent mb-2 block">03</span>
+                    <h3 class="text-xl font-semibold mb-2">PLOTTING</h3>
+                    <p class="text-gray-600 text-sm">Develop technical drawings, 2D drafting, assembly diagrams, and associative sections complete with professional title blocks and pen settings.</p>
+                </div>
+                <div class="pillar-card p-6 bg-white rounded-xl shadow-lg border-t-4 border-accent transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
+                    <span class="text-3xl font-extrabold text-accent mb-2 block">04</span>
+                    <h3 class="text-xl font-semibold mb-2">PRODUCTION</h3>
+                    <p class="text-gray-600 text-sm">Dive into manufacturing—drilling, edge banding, nesting, panel optimisation, CNC machining, and an industry visit to Surabhi Decor.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Detailed Syllabus --><section id="syllabus" class="py-16 md:py-24">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-16">Detailed Course Syllabus</h2>
+            <!-- Week 1 (bg-white) --><div class="syllabus-block mb-12 p-6 md:p-8 rounded-2xl border border-gray-200 bg-white shadow-lg">
+                <h3 class="text-3xl font-extrabold text-accent mb-4">Week 1: 3D MODELLING</h3>
+                <div class="grid md:grid-cols-2 gap-8 text-gray-700"> 
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Software Fundamentals</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Understanding UI & Geometry</li><li>Basic Tools & Basic Functions</li><li>Naming, Grouping, Layer, Reference Point</li><li>Partlist and Parmetrics (Library Creation)</li></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Core Modeling Techniques</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Basic Modeling & Cabinet Making</li><li>Profile, Sweep, Revolve, Loft</li><li>Auxiliary Lines, Curve Menu</li></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Industry Basics</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Basics of Wooden Industry</li><li>Types of Wood, Hardware, Fittings and Laminates</li></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Week 2 - UPDATED background --><div class="syllabus-block mb-12 p-6 md:p-8 rounded-2xl border border-gray-200 bg-cream shadow-lg"> 
+                <h3 class="text-3xl font-extrabold text-accent mb-4">Week 2: PRESENTATION</h3>
+                <div class="grid md:grid-cols-2 gap-8 text-gray-700">
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Scene Setup & Visualization</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Creating a Floor Plan</li><li>Drag n Drop, Cabinets, Accessories & Appliances</li><li>Replace, placement of Doors and windows</li><li>Texture Creation</li></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Rendering Techniques</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Defining Camera Perspective</li><li>Setting up of lights, background and HDRI</li><li>Rendering Parameters</li><li>360 Degree Panorama Rendering</li></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Week 3 (bg-white) --><div class="syllabus-block mb-12 p-6 md:p-8 rounded-2xl border border-gray-200 bg-white shadow-lg">
+                <h3 class="text-3xl font-extrabold text-accent mb-4">Week 3: PLOTTING</h3>
+                <div class="grid md:grid-cols-2 gap-8 text-gray-700">
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Documentation Setup</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Page Setup, Title Block, Templates</li><li>Pen Settings & Associative Sections</li></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">2D Drafting & Detailing</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Assign Dimensions and 2D Text</li><li>2D Drafting & Assembly Drawings</li><li>Use of Symbols & Graphics</li></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Week 4 - UPDATED background --><div class="syllabus-block p-6 md:p-8 rounded-2xl border border-gray-200 bg-cream shadow-lg"> 
+                   <h3 class="text-3xl font-extrabold text-accent mb-4">Week 4: PRODUCTION</h3>
+                   <div class="grid md:grid-cols-2 gap-8 text-gray-700">
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Manufacturing Operations</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Horizontal and Vertical drilling</li><li>Automatic & Manual Drilling Connection</li><li>EdgeBanding & Grain Direction</li><li>Routing parts & Edges</li></ul>
+                    </div>
+                      <div>
+                          <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Optimization & CNC</h4>
+                          <ul class="list-disc list-inside space-y-1 ml-4"><li>Nesting & Panel Optimisation</li><li>Label Design and Label Template</li><li>Generator</li><li>CNC Machining</li></ul>
+                      </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-2 text-[var(--color-dark)]">Industry Exposure</h4>
+                        <ul class="list-disc list-inside space-y-1 ml-4"><li>Indusrty Visit at Surabhi decor</li><li>Types of machines and their operation</li></ul>
+                    </div>
+                   </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW: AI Rendering Tool Section --><section id="ai-renderer" class="py-16 md:py-24">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-4xl font-bold text-center mb-12">🎨 AI-Assisted Rendering Tool</h2>
+            <p class="text-lg text-gray-600 text-center mb-8">
+                Instantly visualize design concepts. Describe the scene (e.g., "Minimalist living room, walnut cabinets, soft ambient lighting") to generate a photo-realistic render draft using advanced AI modeling.
+            </p>
+
+            <div class="bg-cream p-6 md:p-8 rounded-2xl shadow-xl border border-gray-200">
+                <div class="flex flex-col space-y-4">
+                    <input type="text" id="render-prompt" placeholder="E.g., High-end modular kitchen with brass fittings and marble countertop" 
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
+                        value="Modern office furniture unit with a black and gold finish, realistic shadows, photorealistic 8k">
+                    
+                    <button id="generate-render-btn" onclick="generateAIAssistedRender()" 
+                        class="w-full bg-accent text-[var(--color-dark)] font-semibold py-3 px-6 rounded-lg hover:bg-yellow-400 transition duration-300 flex items-center justify-center space-x-2">
+                        <span>Generate Render Draft</span>
+                        <div id="loading-spinner-4" class="spinner ml-2"></div>
+                    </button>
+                </div>
+
+                <!-- Result Area --><div id="render-result" class="mt-8 pt-4 border-t border-gray-200 hidden text-center">
+                    <h4 class="text-xl font-bold mb-3 text-accent">Generated Visualization:</h4>
+                    <img id="generated-image" src="" alt="Generated AI Render" class="w-full h-auto max-h-[500px] object-contain mx-auto rounded-xl shadow-lg border border-gray-300"/>
+                    <p id="render-status" class="text-gray-500 text-sm mt-3 hidden">Image generated successfully.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Contact/CTA Footer (bg-accent remains) --><section id="contact" class="bg-accent py-16">
+        <div class="max-w-4xl mx-auto text-center px-4">
+            <h2 class="text-4xl font-extrabold mb-4 text-[var(--color-dark)]">Ready to Start Your Career in Design and Production?</h2>
+            <p class="text-lg mb-8 text-[var(--color-dark)]">
+                Enroll in the next batch at Surabhi Pytha Academy and transform your professional future.
+            </p>
+            <button onclick="openApplicationModal()" class="bg-white text-[var(--color-dark)] font-bold py-3 px-10 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:scale-105">Contact Admissions Today</button>
+        </div>
+    </section>
+
+    <!-- Footer (bg-dark remains) --><footer class="bg-[var(--color-dark)] text-gray-400 py-8">
+        <div class="max-w-6xl mx-auto px-4 text-center text-sm">
+            &copy; 2024 Surabhi Pytha Academy. All Rights Reserved. | Training powered by Pytha 3D CAD expertise.
+        </div>
+    </footer>
+
+    <!-- Application Modal Structure --><div id="application-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] hidden items-center justify-center p-4" onclick="closeApplicationModal(event)">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 transform transition-transform duration-300 scale-95" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start border-b pb-4 mb-4">
+                <h3 class="text-3xl font-extrabold text-[var(--color-dark)]">Enrollment Application</h3>
+                <button onclick="closeApplicationModal()" class="text-gray-500 hover:text-gray-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="application-form" onsubmit="handleApplicationSubmit(event)">
+                <div class="space-y-4">
+                    <!-- 1 Full Name --><div>
+                        <label for="appName" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="appName" name="appName" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                    </div>
+                    
+                    <!-- 2 Phone Number (What's App) --><div>
+                        <label for="appPhone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number (What's App)</label>
+                        <input type="tel" id="appPhone" name="appPhone" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                    </div>
+
+                    <!-- 3 Email Address --><div>
+                        <label for="appEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="appEmail" name="appEmail" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                    </div>
+
+                    <!-- 4 Address --><div>
+                        <label for="appAddress" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <textarea id="appAddress" name="appAddress" rows="2" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- 5 Select Country --><div>
+                            <label for="appCountry" class="block text-sm font-medium text-gray-700 mb-1">Select Country</label>
+                            <select id="appCountry" name="appCountry" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent" onchange="handleCountryChange(this.value)">
+                                <option value="AF">Afghanistan</option>
+                                <option value="AX">Aland Islands</option>
+                                <option value="AL">Albania</option>
+                                <option value="DZ">Algeria</option>
+                                <option value="AS">American Samoa</option>
+                                <option value="AD">Andorra</option>
+                                <option value="AO">Angola</option>
+                                <option value="AI">Anguilla</option>
+                                <option value="AQ">Antarctica</option>
+                                <option value="AG">Antigua and Barbuda</option>
+                                <option value="AR">Argentina</option>
+                                <option value="AM">Armenia</option>
+                                <option value="AW">Aruba</option>
+                                <option value="AU">Australia</option>
+                                <option value="AT">Austria</option>
+                                <option value="AZ">Azerbaijan</option>
+                                <option value="BS">Bahamas</option>
+                                <option value="BH">Bahrain</option>
+                                <option value="BD">Bangladesh</option>
+                                <option value="BB">Barbados</option>
+                                <option value="BY">Belarus</option>
+                                <option value="BE">Belgium</option>
+                                <option value="BZ">Belize</option>
+                                <option value="BJ">Benin</option>
+                                <option value="BM">Bermuda</option>
+                                <option value="BT">Bhutan</option>
+                                <option value="BO">Bolivia</option>
+                                <option value="BQ">Bonaire, Sint Eustatius and Saba</option>
+                                <option value="BA">Bosnia and Herzegovina</option>
+                                <option value="BW">Botswana</option>
+                                <option value="BV">Bouvet Island</option>
+                                <option value="BR">Brazil</option>
+                                <option value="IO">British Indian Ocean Territory</option>
+                                <option value="BN">Brunei Darussalam</option>
+                                <option value="BG">Bulgaria</option>
+                                <option value="BF">Burkina Faso</option>
+                                <option value="BI">Burundi</option>
+                                <option value="CV">Cabo Verde</option>
+                                <option value="KH">Cambodia</option>
+                                <option value="CM">Cameroon</option>
+                                <option value="CA">Canada</option>
+                                <option value="KY">Cayman Islands</option>
+                                <option value="CF">Central African Republic</option>
+                                <option value="TD">Chad</option>
+                                <option value="CL">Chile</option>
+                                <option value="CN">China</option>
+                                <option value="CX">Christmas Island</option>
+                                <option value="CC">Cocos (Keeling) Islands</option>
+                                <option value="CO">Colombia</option>
+                                <option value="KM">Comoros</option>
+                                <option value="CD">Congo (Democratic Republic of the)</option>
+                                <option value="CG">Congo (Republic of the)</option>
+                                <option value="CK">Cook Islands</option>
+                                <option value="CR">Costa Rica</option>
+                                <option value="CI">Côte d'Ivoire</option>
+                                <option value="HR">Croatia</option>
+                                <option value="CU">Cuba</option>
+                                <option value="CW">Curaçao</option>
+                                <option value="CY">Cyprus</option>
+                                <option value="CZ">Czechia</option>
+                                <option value="DK">Denmark</option>
+                                <option value="DJ">Djibouti</option>
+                                <option value="DM">Dominica</option>
+                                <option value="DO">Dominican Republic</option>
+                                <option value="EC">Ecuador</option>
+                                <option value="EG">Egypt</option>
+                                <option value="SV">El Salvador</option>
+                                <option value="GQ">Equatorial Guinea</option>
+                                <option value="ER">Eritrea</option>
+                                <option value="EE">Estonia</option>
+                                <option value="SZ">Eswatini</option>
+                                <option value="ET">Ethiopia</option>
+                                <option value="FK">Falkland Islands (Malvinas)</option>
+                                <option value="FO">Faroe Islands</option>
+                                <option value="FJ">Fiji</option>
+                                <option value="FI">Finland</option>
+                                <option value="FR">France</option>
+                                <option value="GF">French Guiana</option>
+                                <option value="PF">French Polynesia</option>
+                                <option value="TF">French Southern Territories</option>
+                                <option value="GA">Gabon</option>
+                                <option value="GM">Gambia</option>
+                                <option value="GE">Georgia</option>
+                                <option value="DE">Germany</option>
+                                <option value="GH">Ghana</option>
+                                <option value="GI">Gibraltar</option>
+                                <option value="GR">Greece</option>
+                                <option value="GL">Greenland</option>
+                                <option value="GD">Grenada</option>
+                                <option value="GP">Guadeloupe</option>
+                                <option value="GU">Guam</option>
+                                <option value="GT">Guatemala</option>
+                                <option value="GG">Guernsey</option>
+                                <option value="GN">Guinea</option>
+                                <option value="GW">Guinea-Bissau</option>
+                                <option value="GY">Guyana</option>
+                                <option value="HT">Haiti</option>
+                                <option value="HM">Heard Island and McDonald Islands</option>
+                                <option value="VA">Holy See (Vatican City State)</option>
+                                <option value="HN">Honduras</option>
+                                <option value="HK">Hong Kong</option>
+                                <option value="HU">Hungary</option>
+                                <option value="IS">Iceland</option>
+                                <option value="IN" selected>India</option>
+                                <option value="ID">Indonesia</option>
+                                <option value="IR">Iran</option>
+                                <option value="IQ">Iraq</option>
+                                <option value="IE">Ireland</option>
+                                <option value="IM">Isle of Man</option>
+                                <option value="IL">Israel</option>
+                                <option value="IT">Italy</option>
+                                <option value="JM">Jamaica</option>
+                                <option value="JP">Japan</option>
+                                <option value="JE">Jersey</option>
+                                <option value="JO">Jordan</option>
+                                <option value="KZ">Kazakhstan</option>
+                                <option value="KE">Kenya</option>
+                                <option value="KI">Kiribati</option>
+                                <option value="KP">Korea (Democratic People's Republic of)</option>
+                                <option value="KR">Korea (Republic of)</option>
+                                <option value="KW">Kuwait</option>
+                                <option value="KG">Kyrgyzstan</option>
+                                <option value="LA">Lao People's Democratic Republic</option>
+                                <option value="LV">Latvia</option>
+                                <option value="LB">Lebanon</option>
+                                <option value="LS">Lesotho</option>
+                                <option value="LY">Libya</option>
+                                <option value="LI">Liechtenstein</option>
+                                <option value="LT">Lithuania</option>
+                                <option value="LU">Luxembourg</option>
+                                <option value="MO">Macao</option>
+                                <option value="MG">Madagascar</option>
+                                <option value="MW">Malawi</option>
+                                <option value="MY">Malaysia</option>
+                                <option value="MV">Maldives</option>
+                                <option value="ML">Mali</option>
+                                <option value="MT">Malta</option>
+                                <option value="MH">Marshall Islands</option>
+                                <option value="MQ">Martinique</option>
+                                <option value="MR">Mauritania</option>
+                                <option value="MU">Mauritius</option>
+                                <option value="YT">Mayotte</option>
+                                <option value="MX">Mexico</option>
+                                <option value="FM">Micronesia</option>
+                                <option value="MD">Moldova (Republic of)</option>
+                                <option value="MC">Monaco</option>
+                                <option value="MN">Mongolia</option>
+                                <option value="ME">Montenegro</option>
+                                <option value="MS">Montserrat</option>
+                                <option value="MA">Morocco</option>
+                                <option value="MZ">Mozambique</option>
+                                <option value="MM">Myanmar</option>
+                                <option value="NA">Namibia</option>
+                                <option value="NR">Nauru</option>
+                                <option value="NP">Nepal</option>
+                                <option value="NL">Netherlands</option>
+                                <option value="NC">New Caledonia</option>
+                                <option value="NZ">New Zealand</option>
+                                <option value="NI">Nicaragua</option>
+                                <option value="NE">Niger</option>
+                                <option value="NG">Nigeria</option>
+                                <option value="NU">Niue</option>
+                                <option value="NF">Norfolk Island</option>
+                                <option value="MP">Northern Mariana Islands</option>
+                                <option value="NO">Norway</option>
+                                <option value="OM">Oman</option>
+                                <option value="PK">Pakistan</option>
+                                <option value="PW">Palau</option>
+                                <option value="PS">Palestine, State of</option>
+                                <option value="PA">Panama</option>
+                                <option value="PG">Papua New Guinea</option>
+                                <option value="PY">Paraguay</option>
+                                <option value="PE">Peru</option>
+                                <option value="PH">Philippines</option>
+                                <option value="PN">Pitcairn</option>
+                                <option value="PL">Poland</option>
+                                <option value="PT">Portugal</option>
+                                <option value="PR">Puerto Rico</option>
+                                <option value="QA">Qatar</option>
+                                <option value="MK">Republic of North Macedonia</option>
+                                <option value="RO">Romania</option>
+                                <option value="RU">Russian Federation</option>
+                                <option value="RE">Réunion</option>
+                                <option value="BL">Saint Barthélemy</option>
+                                <option value="SH">Saint Helena, Ascension and Tristan da Cunha</option>
+                                <option value="KN">Saint Kitts and Nevis</option>
+                                <option value="LC">Saint Lucia</option>
+                                <option value="MF">Saint Martin (French part)</option>
+                                <option value="PM">Saint Pierre and Miquelon</option>
+                                <option value="VC">Saint Vincent and the Grenadines</option>
+                                <option value="WS">Samoa</option>
+                                <option value="SM">San Marino</option>
+                                <option value="ST">Sao Tome and Principe</option>
+                                <option value="SA">Saudi Arabia</option>
+                                <option value="SN">Senegal</option>
+                                <option value="RS">Serbia</option>
+                                <option value="SC">Seychelles</option>
+                                <option value="SL">Sierra Leone</option>
+                                <option value="SG">Singapore</option>
+                                <option value="SX">Sint Maarten (Dutch part)</option>
+                                <option value="SK">Slovakia</option>
+                                <option value="SI">Slovenia</option>
+                                <option value="SB">Solomon Islands</option>
+                                <option value="SO">Somalia</option>
+                                <option value="ZA">South Africa</option>
+                                <option value="GS">South Georgia and the South Sandwich Islands</option>
+                                <option value="SS">South Sudan</option>
+                                <option value="ES">Spain</option>
+                                <option value="LK">Sri Lanka</option>
+                                <option value="SD">Sudan</option>
+                                <option value="SR">Suriname</option>
+                                <option value="SJ">Svalbard and Jan Mayen</option>
+                                <option value="SE">Sweden</option>
+                                <option value="CH">Switzerland</option>
+                                <option value="SY">Syrian Arab Republic</option>
+                                <option value="TW">Taiwan</option>
+                                <option value="TJ">Tajikistan</option>
+                                <option value="TZ">Tanzania (United Republic of)</option>
+                                <option value="TH">Thailand</option>
+                                <option value="TL">Timor-Leste</option>
+                                <option value="TG">Togo</option>
+                                <option value="TK">Tokelau</option>
+                                <option value="TO">Tonga</option>
+                                <option value="TT">Trinidad and Tobago</option>
+                                <option value="TN">Tunisia</option>
+                                <option value="TR">Turkey</option>
+                                <option value="TM">Turkmenistan</option>
+                                <option value="TC">Turks and Caicos Islands</option>
+                                <option value="TV">Tuvalu</option>
+                                <option value="UG">Uganda</option>
+                                <option value="UA">Ukraine</option>
+                                <option value="AE">United Arab Emirates</option>
+                                <option value="GB">United Kingdom of Great Britain and Northern Ireland</option>
+                                <option value="US">United States of America</option>
+                                <option value="UM">United States Minor Outlying Islands</option>
+                                <option value="UY">Uruguay</option>
+                                <option value="UZ">Uzbekistan</option>
+                                <option value="VU">Vanuatu</option>
+                                <option value="VE">Venezuela</option>
+                                <option value="VN">Viet Nam</option>
+                                <option value="VG">Virgin Islands (British)</option>
+                                <option value="VI">Virgin Islands (U.S.)</option>
+                                <option value="WF">Wallis and Futuna</option>
+                                <option value="EH">Western Sahara</option>
+                                <option value="YE">Yemen</option>
+                                <option value="ZM">Zambia</option>
+                                <option value="ZW">Zimbabwe</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 6 Select State (Now dynamic based on Country selection) --><div>
+                            <label for="appState" id="appStateLabel" class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                            <select id="appState" name="appState" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                                <!-- Populated by JavaScript --></select>
+                            <input type="text" id="appStateText" name="appStateText" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent hidden" placeholder="Enter State/Province">
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full mt-6 bg-accent text-[var(--color-dark)] font-bold py-3 px-6 rounded-xl shadow-lg hover:bg-yellow-500 transition duration-300 transform hover:scale-[1.01]">
+                    Submit Application
+                </button>
+            </form>
+
+            <!-- Success Message Placeholder --><div id="application-success" class="hidden text-center p-6 mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                <h4 class="text-xl font-bold mb-2">Application Downloaded!</h4>
+                <p id="success-message-text" class="text-gray-600">
+                    <!-- Message text generated by JS --></p>
+                <button onclick="closeApplicationModal()" class="mt-4 bg-[var(--color-dark)] text-white font-bold py-2 px-6 rounded-xl hover:bg-gray-800 transition duration-300">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts --><script>
+        // Register GSAP plugins (only ScrollToPlugin is needed now)
+        gsap.registerPlugin(ScrollToPlugin); 
+
+        // API Configuration 
+        const apiKey = ""; 
+        const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        // Image generation model API URL
+        const imageApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+        
+        // Syllabus Content (No longer used by any feature, but kept for reference)
+        const syllabusContent = `
+            Week 1: 3D MODELLING: Understanding UI & Geometry, Basic Tools, Basic Modeling & Cabinet Making, Partlist and Parmetrics (Library Creation), Profile, Sweep, Revolve, Loft, Auxiliary Lines, Curve Menu, Types of Wood, Hardware, Fittings and Laminates.
+            Week 2: PRESENTATION: Creating a Floor Plan, Drag n Drop, Cabinets, Accessories & Appliances, Texture Creation, Defining Camera Perspective, Setting up of lights, background and HDRI, Rendering Parameters, 360 Degree Panorama Rendering.
+            Week 3: PLOTTING: Page Setup, Title Block, Templates, Pen Settings & Associative Sections, Assign Dimensions and 2D Text, 2D Drafting & Assembly Drawings, Use of Symbols & Graphics.
+            Week 4: PRODUCTION: Horizontal and Vertical drilling, Automatic & Manual Drilling Connection, EdgeBanding & Grain Direction, Routing parts & Edges, Nesting & Panel Optimisation, Label Design and Label Template, Generator, CNC Machining, Industry Visit.
+        `;
+
+        // Get Header Element
+        const header = document.getElementById('main-header');
+        let headerHeight = 0; 
+        
+        // Global model reference
+        let currentModel = null; 
+
+        // --- THREE.JS 3D MODELING AND INTERACTION SETUP --- 
+        let scene, camera, renderer;
+        let controls; 
+        const container = document.getElementById('three-container');
+
+        // Utility to remove the current model group from the scene
+        function removeCurrentModel() {
+            if (currentModel) {
+                scene.remove(currentModel);
+                currentModel.traverse(object => {
+                    if (object.geometry) object.geometry.dispose();
+                    if (object.material) {
+                        if (Array.isArray(object.material)) {
+                            object.material.forEach(material => material.dispose());
+                        } else {
+                            object.material.dispose();
+                        }
+                    }
+                });
+                currentModel = null;
+            }
+        }
+
+        // Function to load and create the default realistic chair model
+        function loadRealisticChairModel() {
+            removeCurrentModel(); // Clear existing model first
+
+            const chairGroup = new THREE.Group();
+
+            // --- Materials (More Realistic) ---
+            // Use MeshStandardMaterial for PBR properties (reacts to light better)
+            
+            // A dark, rough material for cushions
+            const cushionMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x2c2c2c, // Dark grey
+                roughness: 0.9,  // Very rough (diffuse)
+                metalness: 0.1   // Not very metallic
+            });
+
+            // A shiny, metallic material for the frame
+            const metalMaterial = new THREE.MeshStandardMaterial({
+                color: 0x333333, // Dark metal color
+                roughness: 0.2,  // Smooth
+                metalness: 1.0   // Fully metallic
+            });
+
+
+            // --- Geometry ---
+
+            // Create a rounded rectangle shape for the cushions
+            const roundedRectShape = new THREE.Shape();
+            const w = 1.6, h = 1.6, r = 0.1; // width, height, radius
+            roundedRectShape.moveTo(-w/2 + r, -h/2);
+            roundedRectShape.lineTo(w/2 - r, -h/2);
+            roundedRectShape.quadraticCurveTo(w/2, -h/2, w/2, -h/2 + r);
+            roundedRectShape.lineTo(w/2, h/2 - r);
+            roundedRectShape.quadraticCurveTo(w/2, h/2, w/2 - r, h/2);
+            roundedRectShape.lineTo(-w/2 + r, h/2);
+            roundedRectShape.quadraticCurveTo(-w/2, h/2, -w/2, h/2 - r);
+            roundedRectShape.lineTo(-w/2, -h/2 + r);
+            roundedRectShape.quadraticCurveTo(-w/2, -h/2, -w/2 + r, -h/2);
+
+            // Extrude settings for a soft cushion look
+            const extrudeSettings = {
+                steps: 2,
+                depth: 0.15,
+                bevelEnabled: true,
+                bevelThickness: 0.05,
+                bevelSize: 0.05,
+                bevelSegments: 8
+            };
+
+            // Seat
+            const seatGeometry = new THREE.ExtrudeGeometry(roundedRectShape, extrudeSettings);
+            const seat = new THREE.Mesh(seatGeometry, cushionMaterial);
+            seat.position.y = 1.0;
+            seat.rotation.x = -Math.PI / 2; // Rotate to be flat
+            seat.castShadow = true; // This object will cast a shadow
+            seat.receiveShadow = true;
+            chairGroup.add(seat);
+
+            // Backrest
+            const backrestGeometry = new THREE.ExtrudeGeometry(roundedRectShape, extrudeSettings);
+            const backrest = new THREE.Mesh(backrestGeometry, cushionMaterial);
+            backrest.position.set(0, 1.8, -0.85);
+            backrest.rotation.x = -0.1; // Slight tilt
+            backrest.castShadow = true;
+            backrest.receiveShadow = true;
+            chairGroup.add(backrest);
+
+            // Legs (Modern cylindrical legs)
+            const legGeometry = new THREE.CylinderGeometry(0.04, 0.04, 1.0, 16); // radiusTop, radiusBottom, height, segments
+            
+            const legPositions = [
+                new THREE.Vector3(0.7, 0.5, 0.7),
+                new THREE.Vector3(-0.7, 0.5, 0.7),
+                new THREE.Vector3(0.7, 0.5, -0.7),
+                new THREE.Vector3(-0.7, 0.5, -0.7)
+            ];
+
+            legPositions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeometry, metalMaterial);
+                leg.position.copy(pos);
+                leg.castShadow = true;
+                chairGroup.add(leg);
+            });
+            
+            // Armrests
+            const armrestGeo = new THREE.BoxGeometry(0.1, 0.1, 1.0); // Thinner armrest top
+            const armrestSupportGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 16); // Support bar
+
+            // Left Armrest
+            const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 1.2), metalMaterial);
+            leftArm.position.set(-0.85, 1.6, 0);
+            leftArm.castShadow = true;
+            const leftSupport = new THREE.Mesh(armrestSupportGeo, metalMaterial);
+            leftSupport.position.set(-0.85, 1.3, 0.3); // Connects from seat to armrest
+            leftSupport.rotation.z = Math.PI / 8;
+            leftSupport.castShadow = true;
+            chairGroup.add(leftArm);
+            chairGroup.add(leftSupport);
+
+            // Right Armrest
+            const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 1.2), metalMaterial);
+            rightArm.position.set(0.85, 1.6, 0);
+            rightArm.castShadow = true;
+            const rightSupport = new THREE.Mesh(armrestSupportGeo, metalMaterial);
+            rightSupport.position.set(0.85, 1.3, 0.3); // Connects from seat to armrest
+            rightSupport.rotation.z = -Math.PI / 8;
+            rightSupport.castShadow = true;
+            chairGroup.add(rightArm);
+            chairGroup.add(rightSupport);
+
+
+            currentModel = chairGroup;
+            scene.add(currentModel);
+            controls.target.set(0, 0.8, 0); // Center target
+            controls.update();
+        }
+
+        // Function to load a drag-and-dropped OBJ file
+        function loadObjFile(file, material) {
+            const reader = new FileReader();
+            const dndMessage = document.getElementById('dnd-message');
+            
+            reader.onload = (event) => {
+                const loader = new THREE.OBJLoader();
+                try {
+                    const object = loader.parse(event.target.result);
+                    
+                    removeCurrentModel();
+                    
+                    // Apply material to all children if the OBJ doesn't define materials
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material = material;
+                        }
+                    });
+
+                    // Calculate bounding box to center and scale the model
+                    const box = new THREE.Box3().setFromObject(object);
+                    const size = box.getSize(new THREE.Vector3());
+                    const center = box.getCenter(new THREE.Vector3());
+                    
+                    // Normalize scale
+                    const maxDimension = Math.max(size.x, size.y, size.z);
+                    // Scale to fit nicely in the view, adjusting factor as needed
+                    const scaleFactor = 2.5 / maxDimension; 
+
+                    object.scale.set(scaleFactor, scaleFactor, scaleFactor);
+                    
+                    // Center model in the scene by offsetting based on the scaled center
+                    const scaledCenter = center.clone().multiplyScalar(scaleFactor);
+                    object.position.sub(scaledCenter);
+                    
+                    currentModel = object;
+                    scene.add(currentModel);
+                    controls.target.set(0, 0, 0); 
+                    controls.update();
+
+                    // Success message
+                    if (dndMessage) {
+                        dndMessage.innerHTML = `<p class="text-lg font-bold text-black">Successfully loaded ${file.name}!</p><p class="text-sm mt-1 text-black">Orbit, Pan, and Zoom to inspect.</p>`;
+                        dndMessage.style.backgroundColor = 'rgba(144, 238, 144, 0.9)'; // Light Green
+                        dndMessage.style.color = 'black';
+                        dndMessage.style.opacity = 1;
+                        setTimeout(() => dndMessage.style.opacity = 0, 3000);
+                    }
+
+                } catch (e) {
+                    console.error("Error loading or parsing OBJ file:", e);
+                    displayDropMessage(`Error loading ${file.name}. Is the file correctly formatted?`, true);
+                    loadRealisticChairModel(); // Fallback to chair
+                }
+            };
+            reader.onerror = (e) => {
+                console.error("FileReader error:", e);
+                displayDropMessage("Error reading the file.", true);
+                loadRealisticChairModel();
+            };
+            reader.readAsText(file);
+        }
+
+        // Function to display an error/instruction message for non-OBJ files
+        function displayDropMessage(message, isError = false) {
+            const dnd = document.getElementById('dnd-message');
+            if (dnd) {
+                // Ensure default message area visibility
+                dnd.style.opacity = 1;
+                dnd.innerHTML = `<p class="text-lg font-bold">${message}</p>`;
+                dnd.style.backgroundColor = isError ? 'rgba(239, 68, 68, 0.9)' : 'rgba(255, 218, 151, 0.9)'; // Red for error, Gold for instruction
+                dnd.style.color = isError ? 'white' : 'black';
+                
+                // Hide after a short delay 
+                setTimeout(() => dnd.style.opacity = 0, isError ? 5000 : 3000);
+            }
+        }
+
+        // Setup Drag and Drop Listeners
+        function setupDragAndDrop() {
+            const dndContainer = document.getElementById('three-container');
+            const dndMessage = document.getElementById('dnd-message');
+            if (!dndContainer || !dndMessage) return;
+
+            // Prevent default drag behavior
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dndContainer.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // Highlight effect on hover (show dnd message)
+            dndContainer.addEventListener('dragenter', () => {
+                dndMessage.style.opacity = 1;
+                dndMessage.innerHTML = '<p class="text-lg font-bold text-black">Release to load model...</p>';
+                dndMessage.style.backgroundColor = 'rgba(255, 218, 151, 0.9)'; // Gold highlight
+                dndMessage.style.color = 'black';
+            }, false);
+
+            dndContainer.addEventListener('dragleave', () => {
+                dndMessage.style.opacity = 0;
+            }, false);
+
+
+            dndContainer.addEventListener('drop', (e) => {
+                dndMessage.style.opacity = 0; // Hide message immediately
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length === 0) return;
+                
+                const file = files[0];
+                const fileName = file.name.toLowerCase();
+                
+                // Define common CAD formats that require conversion (for error message)
+                const unsupportedExtensions = ['.skp', '.max', '.pyo', '.pyt', '.dwg', '.dxf', '.3ds', '.gltf', '.glb']; 
+                
+                if (fileName.endsWith('.obj')) {
+                    // Default material for the loaded OBJ to ensure black color
+                    const objMaterial = new THREE.MeshPhongMaterial({ 
+                        color: 0x000000, 
+                        shininess: 50 
+                    });
+                    loadObjFile(file, objMaterial);
+                } else if (unsupportedExtensions.some(ext => fileName.endsWith(ext))) {
+                    const droppedExtension = fileName.substring(fileName.lastIndexOf('.'));
+                    displayDropMessage(`Unsupported file type: ${droppedExtension}. Only .obj is supported for this simple viewer.`, true);
+                    loadRealisticChairModel(); // Ensure model is reset
+                } else {
+                     displayDropMessage(`Unsupported file type. Only .obj files are supported for demonstration.`, true);
+                     loadRealisticChairModel(); // Ensure model is reset
+                }
+            }, false);
+        }
+
+        // --- THREE.JS Initialization ---
+        function initThreeJS() {
+            if (!container) return; 
+            const containerRect = container.getBoundingClientRect();
+            const width = containerRect.width;
+            const height = containerRect.height;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xF8F4E3); // Cream background
+            
+            camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            camera.position.set(2.5, 1.5, 3); 
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            // --- Enable Shadows ---
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows
+
+            container.appendChild(renderer.domElement);
+            
+            // 2. Lighting 
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Slightly less bright ambient
+            scene.add(ambientLight);
+            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1.2); 
+            directionalLight1.position.set(5, 10, 7.5); // Higher and further to cast better shadows
+            // --- Enable Shadows on Light ---
+            directionalLight1.castShadow = true;
+            directionalLight1.shadow.mapSize.width = 1024; // Shadow resolution
+            directionalLight1.shadow.mapSize.height = 1024;
+            directionalLight1.shadow.camera.near = 0.5;
+            directionalLight1.shadow.camera.far = 20;
+
+            scene.add(directionalLight1);
+            const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.6); // Fill light
+            directionalLight2.position.set(-5, -5, -5).normalize();
+            scene.add(directionalLight2);
+
+            // --- Add a Ground Plane to Receive Shadows ---
+            const groundGeo = new THREE.PlaneGeometry(20, 20);
+            const groundMat = new THREE.MeshStandardMaterial({ 
+                color: 0xF8F4E3, // Match background
+                roughness: 1.0, 
+                metalness: 0.0 
+            });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2; // Rotate to be flat
+            ground.position.y = 0; // Position at the bottom
+            ground.receiveShadow = true; // This object will receive shadows
+            scene.add(ground);
+
+
+            // 3. OrbitControls Setup
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; 
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = false; 
+            controls.minDistance = 1.5; 
+            controls.maxDistance = 10; 
+            controls.autoRotate = true; 
+            controls.autoRotateSpeed = 0.5; 
+            controls.target.set(0, 0.75, 0); // Center target (approx middle of chair)
+            
+            // 4. Load initial model and set up Drag and Drop
+            loadRealisticChairModel(); 
+            setupDragAndDrop();
+            
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (controls) controls.update(); 
+            if(renderer && scene && camera) renderer.render(scene, camera); 
+        }
+
+        function onWindowResize() {
+            if(header) setCSSHeaderHeight(); 
+
+            if (container && renderer && camera && controls) { 
+                const containerRect = container.getBoundingClientRect();
+                const width = Math.max(1, containerRect.width);
+                const height = Math.max(1, containerRect.height); 
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+                controls.update();
+            }
+        }
+        
+        // --- Header and Scroll Logic ---
+        function setCSSHeaderHeight() { 
+             if (!header) return; 
+             headerHeight = header.offsetHeight;
+             document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+             document.body.style.paddingTop = `${headerHeight}px`;
+        }
+        
+        let lastScrollY = window.scrollY;
+        let scrollThreshold = 100; 
+        
+        window.addEventListener('scroll', () => {
+             if (!header) return; 
+             
+            if (headerHeight > 0) {
+                 scrollThreshold = headerHeight;
+            }
+
+            const currentScrollY = window.scrollY;
+
+            // Scrolling Down
+            if (currentScrollY > scrollThreshold && currentScrollY > lastScrollY) {
+                header.classList.add('-translate-y-full');
+            } 
+            // Scrolling Up or Near Top
+            else if (currentScrollY < lastScrollY || currentScrollY <= scrollThreshold) {
+                header.classList.remove('-translate-y-full');
+            }
+            
+            lastScrollY = currentScrollY <= 0 ? 0 : currentScrollY;
+        }, { passive: true });
+
+
+        /** Updated scroll handler to use GSAP for smooth scrolling with offset */
+        function handleSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        // Ensure header is shown before scrolling for accurate calculation
+                        if (header) header.classList.remove('-translate-y-full'); 
+                        
+                        // Recalculate header height right before scroll
+                        let currentHeaderHeight = header ? header.offsetHeight : 0; 
+
+                        gsap.to(window, {
+                            duration: 0.4, // Reduced from 0.8 to 0.4 seconds
+                            scrollTo: {
+                                y: targetElement,
+                                offsetY: currentHeaderHeight + 20 // Add 20px margin
+                            },
+                            ease: "power2.out" // Changed from power2.inOut to power2.out for snappier feel
+                        });
+                    }
+                });
+            });
+        }
+        
+        // --- Gemini API Utility Functions ---
+        
+        // Simplified updateUIForLoading as only image generation remains
+        function updateUIForLoading(spinnerId, buttonId, isLoading, newText = null) {
+            const spinner = document.getElementById(spinnerId);
+            const button = document.getElementById(buttonId);
+            if (isLoading) {
+                if(spinner) spinner.style.display = 'block';
+                if(button) { 
+                    button.disabled = true; 
+                    const span = button.querySelector('span'); 
+                    if(span) span.textContent = newText || 'Processing...'; 
+                }
+            } else {
+                if(spinner) spinner.style.display = 'none';
+                if(button) { 
+                    button.disabled = false; 
+                    const span = button.querySelector('span'); 
+                    if(span){
+                        // Only need to handle the image generation button text now
+                        if (buttonId === 'generate-render-btn') {
+                            span.textContent = 'Generate Render Draft';
+                        }
+                    }
+                }
+            }
+        }
+
+        async function fetchWithRetry(url, options, maxRetries = 3) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        const errorBody = await response.json().catch(() => ({}));
+                        throw new Error(`HTTP error! status: ${response.status} - ${errorBody.error?.message || response.statusText}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed:`, error.message);
+                    if (i === maxRetries - 1) throw error; 
+                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        // displaySources function removed as it was only used by the LLM text features
+        
+        // --- AI RENDERING FUNCTION (REMAINS) ---
+        async function generateAIAssistedRender() {
+            const promptInput = document.getElementById('render-prompt');
+            const resultDiv = document.getElementById('render-result');
+            const imageElement = document.getElementById('generated-image');
+            const statusElement = document.getElementById('render-status');
+            
+            if (!promptInput || !resultDiv || !imageElement || !statusElement) return;
+
+            const userPrompt = promptInput.value.trim();
+            if (!userPrompt) return;
+
+            // 1. Loading State
+            updateUIForLoading('loading-spinner-4', 'generate-render-btn', true, 'Generating...');
+            resultDiv.classList.add('hidden');
+            imageElement.src = '';
+            statusElement.classList.add('hidden');
+            statusElement.textContent = 'Generating Image...';
+
+            // 2. API Payload (Imagen 3.0)
+            const payload = { 
+                instances: [{ prompt: "CAD focused, professional interior design render of " + userPrompt }], 
+                parameters: { 
+                    "sampleCount": 1,
+                    "aspectRatio": "1:1", // Standard aspect ratio
+                } 
+            };
+            
+            try {
+                const response = await fetchWithRetry(imageApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const prediction = response.predictions?.[0];
+                const base64Data = prediction?.bytesBase64Encoded;
+
+                if (base64Data) {
+                    const imageUrl = `data:image/png;base64,${base64Data}`;
+                    imageElement.src = imageUrl;
+                    statusElement.textContent = 'Render completed successfully.';
+                    resultDiv.classList.remove('hidden');
+                    statusElement.classList.remove('hidden');
+                } else {
+                    statusElement.textContent = 'Error: Could not generate image. Response was empty.';
+                    statusElement.classList.remove('hidden');
+                    resultDiv.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                statusElement.textContent = `Error: Image generation failed. Please try a different prompt. (${error.message})`;
+                statusElement.classList.remove('hidden');
+                resultDiv.classList.remove('hidden');
+                console.error("Image API Call Error:", error);
+            } finally {
+                // 3. Reset Loading State
+                updateUIForLoading('loading-spinner-4', 'generate-render-btn', false);
+            }
+        }
+        
+        // --- LLM Feature Functions (REMOVED) ---
+        // generateInsight(), generateProjectIdea(), and getMaterialAdvice() functions have been removed.
+        
+        // --- Application Modal Logic (REMAINS) ---
+
+        const indianStates = [
+            "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", 
+            "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", 
+            "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", 
+            "Andaman and Nicobar Islands (UT)", "Chandigarh (UT)", "Dadra and Nagar Haveli and Daman and Diu (UT)", "Delhi (NCT)", 
+            "Jammu and Kashmir (UT)", "Ladakh (UT)", "Lakshadweep (UT)", "Puducherry (UT)"
+        ];
+
+        /** Handles the change in the country selection to dynamically update the State/Province field. */
+        function handleCountryChange(countryCode) {
+            const stateSelect = document.getElementById('appState');
+            const stateTextInput = document.getElementById('appStateText');
+            const stateLabel = document.getElementById('appStateLabel');
+
+            if (!stateSelect || !stateTextInput || !stateLabel) return;
+
+            if (countryCode === 'IN') {
+                // Show Select dropdown for India
+                stateSelect.classList.remove('hidden');
+                stateTextInput.classList.add('hidden');
+                stateSelect.innerHTML = '<option value="" disabled selected>Select State/UT</option>';
+                stateLabel.textContent = 'Select State/Union Territory';
+                
+                indianStates.forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state;
+                    option.textContent = state;
+                    stateSelect.appendChild(option);
+                });
+                stateSelect.setAttribute('name', 'appState'); // Ensure correct name is active
+                stateTextInput.removeAttribute('name');
+                stateSelect.required = true;
+                stateTextInput.required = false;
+
+            } else {
+                // Show text input for all other countries
+                stateSelect.classList.add('hidden');
+                stateTextInput.classList.remove('hidden');
+                stateLabel.textContent = 'State/Province';
+                stateTextInput.setAttribute('name', 'appState'); // Ensure correct name is active
+                stateSelect.removeAttribute('name');
+                stateSelect.required = false;
+                stateTextInput.required = true;
+                stateTextInput.placeholder = 'Enter State/Province';
+            }
+        }
+
+        function openApplicationModal() {
+            const modal = document.getElementById('application-modal');
+            const form = document.getElementById('application-form');
+            const success = document.getElementById('application-success');
+
+            if (modal) {
+                // Ensure form is visible, success is hidden, and modal is displayed
+                form.classList.remove('hidden');
+                success.classList.add('hidden');
+                form.reset();
+                modal.classList.add('flex');
+                modal.classList.remove('hidden');
+
+                // Call handleCountryChange on modal open to set default to India
+                handleCountryChange(document.getElementById('appCountry').value);
+
+                // Apply GSAP animation for entrance
+                gsap.fromTo(modal.querySelector(':scope > div'), 
+                    { scale: 0.9, opacity: 0 }, 
+                    { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
+                );
+            }
+        }
+
+        function closeApplicationModal(event) {
+            const modal = document.getElementById('application-modal');
+            if (modal) {
+                // Check if click was directly on the backdrop
+                if (!event || event.target === modal || event.type === 'click' && event.currentTarget.tagName === 'BUTTON') {
+                     gsap.to(modal.querySelector(':scope > div'), { 
+                         scale: 0.9, 
+                         opacity: 0, 
+                         duration: 0.2, 
+                         ease: "power2.in", 
+                         onComplete: () => {
+                             modal.classList.add('hidden');
+                             modal.classList.remove('flex');
+                         }
+                     });
+                }
+            }
+        }
+
+        function handleApplicationSubmit(event) {
+            event.preventDefault();
+            const form = document.getElementById('application-form');
+            const success = document.getElementById('application-success');
+            
+            if (!form || !success) return;
+            
+            if (typeof window.jspdf === 'undefined') {
+                console.error("jsPDF library not loaded.");
+                // Using console.error instead of alert as per instructions
+                return;
+            }
+
+            // 1. Collect Data
+            const name = document.getElementById('appName').value;
+            const email = document.getElementById('appEmail').value;
+            const phone = document.getElementById('appPhone').value;
+            const address = document.getElementById('appAddress').value;
+            const countrySelect = document.getElementById('appCountry');
+            const country = countrySelect.options[countrySelect.selectedIndex].text;
+            
+            let state;
+            if (document.getElementById('appState').classList.contains('hidden')) {
+                state = document.getElementById('appStateText').value; // Text input for non-IN countries
+            } else {
+                state = document.getElementById('appState').value; // Select input for IN
+            }
+
+            // 2. PDF Generation Logic
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Surabhi Pytha Academy - Enrollment Application", 10, 15);
+            
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text("Submission Date: " + new Date().toLocaleDateString(), 10, 25);
+            doc.text("--- Applicant Details ---", 10, 35);
+
+            let y = 45; // Starting Y position for details
+            const indent = 50;
+
+            const addField = (label, value) => {
+                doc.setFont('helvetica', 'bold');
+                doc.text(`${label}:`, 10, y);
+                doc.setFont('helvetica', 'normal');
+                
+                // Handle multi-line addresses
+                const textLines = doc.splitTextToSize(value, 150);
+                doc.text(textLines, indent, y);
+                y += (textLines.length * 7) + 3; // Adjust Y position based on line count and spacing
+            };
+
+            addField("Full Name", name);
+            addField("Phone (WhatsApp)", phone);
+            addField("Email Address", email);
+            addField("Country", country);
+            addField("State/Province", state);
+            addField("Address", address);
+            
+            // 3. Trigger Download
+            doc.save(`Pytha_Application_${name.replace(/\s/g, '_')}_${Date.now()}.pdf`);
+            
+            // 4. Show Success Message
+            const successMessageText = document.getElementById('success-message-text');
+            
+            // Update success message text as requested, ensuring the email link is black
+            if (successMessageText) {
+                successMessageText.innerHTML = `
+                    Thank you, <span class="font-semibold">${name}</span>! 
+                    Your application details have been downloaded as a PDF. 
+                    <span class="font-bold text-[var(--color-dark)]">
+                        Please send your application form to <a href="mailto:surabhipythaacademy@gmail.com" class="text-[var(--color-dark)] underline hover:text-gray-700">surabhipythaacademy@gmail.com</a>.
+                    </span>
+                `;
+            }
+
+            form.classList.add('hidden');
+            success.classList.remove('hidden');
+            
+            if (controls) controls.autoRotate = false;
+        }
+
+        // Add handler to close modal on Escape key press
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('application-modal')?.classList.contains('flex')) {
+                closeApplicationModal();
+            }
+        });
+
+        
+        window.onload = function() {
+            setCSSHeaderHeight();
+            try {
+                if (container) { 
+                    initThreeJS();
+                } else {
+                    console.error("Three.js container not found.");
+                }
+            } catch (e) {
+                console.error("Failed to initialize Three.js:", e);
+                 if (container) {
+                     container.innerHTML = '<p class="text-red-500">3D model failed to load.</p>';
+                 }
+            }
+            handleSmoothScroll();
+            // Initial call to set the states when the page loads (India is default)
+            // Dispatching change event ensures handleCountryChange is called with the default value
+            const countrySelect = document.getElementById('appCountry');
+            if (countrySelect) {
+                countrySelect.dispatchEvent(new Event('change'));
+            }
+        };
+
+    </script>
+</body>
+</html>
+
+
