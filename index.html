@@ -411,6 +411,12 @@
                         <input type="email" id="appEmail" name="appEmail" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
                     </div>
 
+                    <!-- NEW: Pincode -->
+                    <div>
+                        <label for="appPincode" class="block text-sm font-medium text-gray-700 mb-1">Pincode/ZIP Code</label>
+                        <input type="text" id="appPincode" name="appPincode" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                    </div>
+
                     <!-- 4 Address --><div>
                         <label for="appAddress" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
                         <textarea id="appAddress" name="appAddress" rows="2" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent"></textarea>
@@ -679,6 +685,48 @@
                             <input type="text" id="appStateText" name="appStateText" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent hidden" placeholder="Enter State/Province">
                         </div>
                     </div>
+
+                    <!-- NEW: Joining Details Row -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Joining Month and Year -->
+                        <div class="col-span-2 md:col-span-1">
+                            <label for="appJoiningMonth" class="block text-sm font-medium text-gray-700 mb-1">Joining Month</label>
+                            <select id="appJoiningMonth" name="appJoiningMonth" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                                <option value="" disabled selected>Select Month</option>
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <label for="appJoiningYear" class="block text-sm font-medium text-gray-700 mb-1">Joining Year</label>
+                            <select id="appJoiningYear" name="appJoiningYear" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                                <option value="" disabled selected>Select Year</option>
+                                <!-- Years will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Preferred Batch -->
+                    <div>
+                        <label for="appBatch" class="block text-sm font-medium text-gray-700 mb-1">Preferable Batch</label>
+                        <select id="appBatch" name="appBatch" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                            <option value="" disabled selected>Select Batch</option>
+                            <option value="Morning (9:30am - 12:30pm)">Morning (9:30am - 12:30pm)</option>
+                            <option value="Evening (2:30pm - 5:30pm)">Evening (2:30pm - 5:30pm)</option>
+                            <option value="Full Time (10:00am - 5:30pm)">Full Time (10:00am - 5:30pm)</option>
+                        </select>
+                    </div>
+
                 </div>
                 
                 <button type="submit" class="w-full mt-6 bg-accent text-[var(--color-dark)] font-bold py-3 px-6 rounded-xl shadow-lg hover:bg-yellow-500 transition duration-300 transform hover:scale-[1.01]">
@@ -1379,6 +1427,27 @@
             }
         }
 
+        /** Populates the Joining Year dropdown (2025-2035) */
+        function populateJoiningYears() {
+            const yearSelect = document.getElementById('appJoiningYear');
+            if (!yearSelect) return;
+
+            // Clear previous options (keeping the default placeholder)
+            yearSelect.innerHTML = '<option value="" disabled selected>Select Year</option>';
+
+            const currentYear = new Date().getFullYear();
+            // Start year from 2025 as requested, or the current year if it's already past that.
+            const startYear = Math.max(2025, currentYear); 
+            const endYear = 2035;
+
+            for (let year = startYear; year <= endYear; year++) {
+                const option = document.createElement('option');
+                option.value = year.toString();
+                option.textContent = year.toString();
+                yearSelect.appendChild(option);
+            }
+        }
+
         function openApplicationModal() {
             const modal = document.getElementById('application-modal');
             const form = document.getElementById('application-form');
@@ -1392,7 +1461,8 @@
                 modal.classList.add('flex');
                 modal.classList.remove('hidden');
 
-                // Call handleCountryChange on modal open to set default to India
+                // Populate dynamic fields
+                populateJoiningYears();
                 const countrySelect = document.getElementById('appCountry');
                 if (countrySelect) {
                      handleCountryChange(countrySelect.value);
@@ -1442,13 +1512,19 @@
                 return;
             }
 
-            // --- PDF HEADER DATA ---
-            // The image embedding logic is replaced with native vector drawing to avoid the Base64 corruption error.
+            // --- PDF Custom Colors (RGB values for jsPDF) ---
+            const COLOR_BLACK = [0, 0, 0];
+            const COLOR_WHITE = [255, 255, 255];
+            const COLOR_ACCENT_GOLD = [255, 218, 151]; // #FFDA97
             
             // 1. Collect Data
             const name = document.getElementById('appName').value;
             const email = document.getElementById('appEmail').value;
             const phone = document.getElementById('appPhone').value;
+            const pincode = document.getElementById('appPincode').value; // NEW
+            const joiningMonth = document.getElementById('appJoiningMonth').value; // NEW
+            const joiningYear = document.getElementById('appJoiningYear').value; // NEW
+            const preferredBatch = document.getElementById('appBatch').value; // NEW
             const address = document.getElementById('appAddress').value;
             const countrySelect = document.getElementById('appCountry');
             const country = countrySelect.options[countrySelect.selectedIndex].text;
@@ -1465,72 +1541,225 @@
                 // 2. PDF Generation Logic
                 const doc = new jsPDF();
                 
-                // --- Draw Header ---
-                const headerHeight = 25; // 25mm header height
-                // Draw black background
-                doc.setFillColor(0, 0, 0); // Black
-                doc.rect(0, 0, 210, headerHeight, 'F'); // x, y, width (A4), height, style (Fill)
+                // --- DRAW HEADER (Refined) ---
+                const headerHeight = 35; 
+                const padding = 15;
+                const pageWidth = 210;
 
-                // ADDED FIX: Draw Gold Circle (Logo Placeholder) to bypass corrupt Base64 image
-                doc.setFillColor(255, 218, 151); // Gold/Accent color
-                doc.circle(17.5, 12.5, 7.5, 'F'); // x, y, radius, style (Fill)
+                // 1. Black Background
+                doc.setFillColor(...COLOR_BLACK); 
+                doc.rect(0, 0, pageWidth, headerHeight, 'F'); 
 
-                // Add Company Name (in white)
-                doc.setTextColor(255, 255, 255); // White
+                // 2. Gold Accent Bar
+                doc.setFillColor(...COLOR_ACCENT_GOLD);
+                doc.rect(0, headerHeight - 3, pageWidth, 3, 'F'); 
+
+                // 3. Logo Container (White Circle)
+                doc.setFillColor(...COLOR_WHITE);
+                doc.circle(17.5, 15, 8.5, 'F'); 
+                
+                // 4. Logo Accent (Gold Circle Inside)
+                doc.setFillColor(255, 218, 151); 
+                doc.circle(17.5, 15, 7.5, 'F'); 
+
+                // 5. Company Name
+                doc.setTextColor(...COLOR_WHITE); 
                 doc.setFont('helvetica', 'bold');
+                doc.setFontSize(20); 
+                doc.text("SURABHI", 30, 15); 
+                
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(13);
+                doc.text("PYTHA ACADEMY", 30, 22); 
+                // --- END HEADER ---
+                
+                // --- DRAW CONTENT (New Clean, Minimalist Format) ---
+                
+                // Set up content starting position and style
+                doc.setTextColor(...COLOR_BLACK);
+                let y = headerHeight + 10; 
+                const contentX = padding;
+                const contentWidth = pageWidth - (2 * padding);
+
+                // Submission Date Info (Top Right)
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(100, 100, 100); 
+                doc.text(`DATE: ${new Date().toLocaleDateString()}`, pageWidth - padding, y - 5, { align: "right" });
+                doc.setTextColor(...COLOR_BLACK); 
+
+                // Section Title (Enrollment Application)
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                // CHANGE 3: Changed title from "OFFICIAL ENROLLMENT FORM" to "ENROLLMENT FORM"
+                doc.text("ENROLLMENT FORM", contentX, y); 
+                y += 12;
+
+                // Sub-Title for Details
                 doc.setFontSize(14);
-                doc.text("SURABHI", 28, 13); // x=28 (right of circle), y=13
-                
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(10);
-                doc.text("PYTHA ACADEMY", 28, 19); // y=19 (below SURABHI)
-                // --- End of Header ---
-
-
-                // --- Adjust Content Y-Position ---
-                // Reset text color to black for content
-                doc.setTextColor(0, 0, 0);
-                
-                // Start content below the header
-                let contentStartY = headerHeight + 10; // 10mm margin below header
-
-                doc.setFontSize(18);
                 doc.setFont('helvetica', 'bold');
-                doc.text("Enrollment Application", 10, contentStartY);
-                
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'normal');
-                doc.text("Submission Date: " + new Date().toLocaleDateString(), 10, contentStartY + 10);
-                doc.text("--- Applicant Details ---", 10, contentStartY + 20);
+                doc.text("APPLICANT DETAILS", contentX, y);
+                y += 3;
 
-                let y = contentStartY + 30; // Starting Y position for details
-                const indent = 50;
+                // Gold Accent Separator
+                doc.setDrawColor(...COLOR_ACCENT_GOLD);
+                doc.setLineWidth(1.5);
+                doc.line(contentX, y, contentX + 50, y); 
+                y += 15; // Increased vertical margin after separator for space
 
-                const addField = (label, value) => {
-                    doc.setFont('helvetica', 'bold');
-                    doc.text(`${label}:`, 10, y);
-                    doc.setFont('helvetica', 'normal');
+                // Define column structure
+                const col1X = contentX;
+                const col2X = contentX + (contentWidth / 2) + 5; // Start second column slightly offset
+                const colWidth = (contentWidth / 2) - 5; // Width of each column
+
+                // Function to add a single field line
+                // Optimized to reduce vertical space and remove unnecessary line drawing logic for full address.
+                const addMinimalField = (label, value, startX, width = colWidth, forceFullWidth = false) => {
+                    const labelLineHeight = 5;
+                    const valueLineHeight = 6;
                     
-                    // Handle multi-line addresses
-                    const textLines = doc.splitTextToSize(value, 150);
-                    doc.text(textLines, indent, y);
-                    y += (textLines.length * 7) + 3; // Adjust Y position based on line count and spacing
+                    const actualWidth = forceFullWidth ? contentWidth : width;
+
+                    // Check if we need a new page (30mm margin for footer)
+                    if (y + 20 > doc.internal.pageSize.height - 30) {
+                        doc.addPage();
+                        y = padding + 10; // Reset Y position with some margin
+                        
+                        // Redraw title and separator on new page
+                        doc.setFontSize(14);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text("APPLICANT DETAILS (Continued)", contentX, y);
+                        y += 3;
+                        doc.setDrawColor(...COLOR_ACCENT_GOLD);
+                        doc.setLineWidth(1.5);
+                        doc.line(contentX, y, contentX + 50, y); 
+                        y += 15; // Space after new title
+                    }
+
+                    // --- Label (Small, Bold, Dark Grey) ---
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(9);
+                    doc.setTextColor(80, 80, 80); 
+                    doc.text(label, startX, y); 
+                    
+                    // --- Value (Normal text, Black, larger size) ---
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(12); 
+                    doc.setTextColor(...COLOR_BLACK);
+                    
+                    let currentY = y + labelLineHeight;
+
+                    // Text wrapping for value (constrained by given width)
+                    const valueTextLines = doc.splitTextToSize(value, actualWidth);
+                    doc.text(valueTextLines, startX, currentY);
+
+                    // Calculate field end Y position
+                    const dataHeight = (valueTextLines.length * valueLineHeight); 
+                    
+                    // --- Draw thin underline ---
+                    doc.setDrawColor(0, 0, 0); // Black line
+                    doc.setLineWidth(0.2);
+                    doc.line(startX, currentY + dataHeight + 1, startX + actualWidth, currentY + dataHeight + 1);
+                    
+                    // Total height taken by this field group
+                    return labelLineHeight + dataHeight + 1 + 8; // Height + Line + increased margin (8 units)
                 };
 
-                addField("Full Name", name);
-                addField("Phone (WhatsApp)", phone);
-                addField("Email Address", email);
-                addField("Country", country);
-                addField("State/Province", state);
-                addField("Address", address);
+                // --- TWO COLUMN DATA LAYOUT ---
                 
+                // Fields that must be handled as pairs to maintain alignment
+                const dataPairs = [
+                    { label1: "FULL NAME", value1: name.toUpperCase(), label2: "EMAIL ADDRESS", value2: email.toLowerCase() },
+                    { label1: "PHONE (WHATSAPP)", value1: phone, label2: "PINCODE", value2: pincode },
+                    { label1: "COUNTRY", value1: country.toUpperCase(), label2: "STATE/PROVINCE", value2: state.toUpperCase() },
+                    { label1: "JOINING MONTH", value1: joiningMonth.toUpperCase(), label2: "JOINING YEAR", value2: joiningYear },
+                    { label1: "PREFERRED BATCH", value1: preferredBatch.toUpperCase(), label2: "", value2: "" }
+                ];
+
+                for (let i = 0; i < dataPairs.length; i++) {
+                    const pair = dataPairs[i];
+                    
+                    // Store current Y before processing pair
+                    const startY = y; 
+                    
+                    // Column 1
+                    const height1 = addMinimalField(pair.label1, pair.value1, col1X);
+
+                    // Column 2 - Needs to return to original Y position
+                    y = startY; 
+                    
+                    // Only draw column 2 if data exists
+                    if (pair.label2) {
+                        const height2 = addMinimalField(pair.label2, pair.value2, col2X);
+                        // Move Y position forward based on the taller column
+                        y = startY + Math.max(height1, height2);
+                    } else {
+                        // Move Y position forward based on column 1 only
+                        y = startY + height1;
+                    }
+                }
+
+                // Row for Full Address (Single, full width field)
+                addMinimalField("FULL ADDRESS", address.toUpperCase(), col1X, contentWidth, true);
+                
+                // CHANGE 2: Moved Agreement section closer to the footer
+                const spaceAboveFooter = doc.internal.pageSize.height - (y + 15 + 25); // y + margin + footerHeight
+                const agreementY = spaceAboveFooter > 20 ? doc.internal.pageSize.height - 70 : y + 15;
+
+                y = agreementY;
+                
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...COLOR_BLACK);
+                doc.text("Enrollment Agreement:", contentX, y);
+                y += 7;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text("I hereby confirm that all information provided above is accurate and true. I understand that submitting this form does not guarantee enrollment until payment is processed and confirmed by the academy.", contentX, y, { maxWidth: contentWidth });
+                y += 15;
+                
+                // Signature Line
+                doc.setDrawColor(0, 0, 0); 
+                doc.setLineWidth(0.5);
+                doc.line(contentX, y, contentX + 70, y);
+                y += 5;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text("Applicant Signature", contentX + 10, y);
+
+                // --- DRAW FOOTER CONTACT BLOCK (Highly Prominent) ---
+                
+                const footerHeight = 25;
+                const footerRectY = doc.internal.pageSize.height - footerHeight;
+                
+                // 1. Draw Gold Accent Bar at the top of the footer
+                doc.setFillColor(...COLOR_ACCENT_GOLD);
+                doc.rect(0, footerRectY - 1, pageWidth, 2, 'F'); 
+                
+                // 2. Draw Black Footer Background
+                doc.setFillColor(...COLOR_BLACK);
+                doc.rect(0, footerRectY + 1, pageWidth, footerHeight - 1, 'F'); 
+
+                // 3. Contact/Instruction Text
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.setTextColor(...COLOR_WHITE); 
+                
+                doc.text("NEXT STEP: Please email this signed application form to:", pageWidth / 2, footerRectY + 8, { align: "center" });
+                
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(12);
+                doc.text("surabhipythaacademy@gmail.com", pageWidth / 2, footerRectY + 15, { align: "center" });
+
+                doc.setFontSize(9);
+                doc.text(`Contact: ${phone} | Powered by Pytha 3D CAD Training`, pageWidth / 2, footerRectY + 22, { align: "center" });
+
                 // 3. Trigger Download
                 doc.save(`Pytha_Application_${name.replace(/\s/g, '_')}_${Date.now()}.pdf`);
                 
-                // 4. Show Success Message
+                // 4. Show Success Message (Success UI logic remains the same)
                 const successMessageText = document.getElementById('success-message-text');
                 
-                // Update success message text as requested, ensuring the email link is black
                 if (successMessageText) {
                     successMessageText.innerHTML = `
                         Thank you, <span class="font-semibold">${name}</span>! 
