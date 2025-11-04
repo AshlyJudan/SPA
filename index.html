@@ -1754,7 +1754,8 @@
                 doc.text("surabhipythaacademy@gmail.com", pageWidth / 2, footerRectY + 15, { align: "center" });
 
                 doc.setFontSize(9);
-                doc.text(`Contact: ${phone} | Powered by Pytha 3D CAD Training`, pageWidth / 2, footerRectY + 22, { align: "center" });
+                // FINAL CHANGE: Updated the website line in the footer
+                doc.text(`www.surabhipythaacademy.com`, pageWidth / 2, footerRectY + 22, { align: "center" });
 
                 // 3. Trigger Download
                 doc.save(`Pytha_Application_${name.replace(/\s/g, '_')}_${Date.now()}.pdf`);
