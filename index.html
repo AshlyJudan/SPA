@@ -179,11 +179,12 @@
                 </div>
             </a>
             
-            <!-- Enhanced Navigation (Removed Features link) --><nav class="hidden md:flex space-x-8 font-medium text-white items-center">
+            <!-- Enhanced Navigation (Desktop) --><nav class="hidden md:flex space-x-8 font-medium text-white items-center">
                 <a href="#course-overview" class="nav-link hover:text-accent transition duration-300 relative group py-1">Overview<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
                 <a href="#syllabus" class="nav-link hover:text-accent transition duration-300 relative group py-1">Syllabus<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
                 <a href="#ai-renderer" class="nav-link hover:text-accent transition duration-300 relative group py-1">AI Renderer 🎨<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
-                <a href="#contact" class="nav-link hover:text-accent transition duration-300 relative group py-1">Contact<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
+                <a href="#" onclick="openGalleryModal(event)" class="nav-link hover:text-accent transition duration-300 relative group py-1">Gallery<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
+                <a href="#" onclick="openContactModal(event)" class="nav-link hover:text-accent transition duration-300 relative group py-1">Contact<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
             </nav>
             <button onclick="openApplicationModal()" class="hidden md:block bg-accent text-[var(--color-dark)] py-2 px-6 rounded-xl font-bold shadow-lg hover:bg-white hover:shadow-2xl transition duration-300 transform hover:scale-[1.05]">Enroll Now</button>
             
@@ -199,10 +200,11 @@
     <!-- Mobile Menu Structure (Initial state is 'hidden' for Tailwind, transitioned via JS 'active' class) -->
     <div id="mobile-menu" class="fixed inset-0 bg-[var(--color-dark)] z-[55] pt-24 p-8 overflow-y-auto md:hidden hidden">
         <nav class="flex flex-col space-y-6 text-center">
-            <a href="#course-overview" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Overview</a>
-            <a href="#syllabus" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Syllabus</a>
-            <a href="#ai-renderer" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">AI Renderer 🎨</a>
-            <a href="#contact" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Contact</a>
+            <a href="#course-overview" onclick="closeMobileMenu()" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Overview</a>
+            <a href="#syllabus" onclick="closeMobileMenu()" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Syllabus</a>
+            <a href="#ai-renderer" onclick="closeMobileMenu()" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">AI Renderer 🎨</a>
+            <a href="#" onclick="openGalleryModal(event); closeMobileMenu();" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Gallery</a>
+            <a href="#" onclick="openContactModal(event); closeMobileMenu();" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Contact</a>
             
             <div class="pt-6">
                  <button onclick="openApplicationModal(); closeMobileMenu();" class="w-full max-w-xs mx-auto bg-accent text-[var(--color-dark)] py-3 px-6 rounded-xl font-bold shadow-lg hover:bg-white transition duration-300">
@@ -746,6 +748,57 @@
             </div>
         </div>
     </div>
+
+    <!-- Gallery Modal Structure (Coming Soon) -->
+    <div id="gallery-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] hidden items-center justify-center p-4" onclick="closeGalleryModal(event)">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center transform transition-transform duration-300 scale-95" onclick="event.stopPropagation()">
+            <h3 class="text-3xl font-extrabold text-[var(--color-dark)] mb-4">Gallery</h3>
+            <p class="text-xl text-accent font-semibold mb-6">Coming Soon!</p>
+            <p class="text-gray-700 mb-6">We're curating the best student and professional work to showcase. Check back shortly!</p>
+            <button onclick="closeGalleryModal()" class="bg-[var(--color-dark)] text-white font-bold py-2 px-6 rounded-xl hover:bg-gray-800 transition duration-300">Close</button>
+        </div>
+    </div>
+
+    <!-- Contact Modal Structure (WhatsApp Integration) -->
+    <div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] hidden items-center justify-center p-4" onclick="closeContactModal(event)">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 transform transition-transform duration-300 scale-95" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start border-b pb-4 mb-4">
+                <h3 class="text-3xl font-extrabold text-[var(--color-dark)]">Direct Contact</h3>
+                <button onclick="closeContactModal()" class="text-gray-500 hover:text-gray-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="direct-contact-form" onsubmit="sendMessage(event)">
+                <div class="space-y-4">
+                    <!-- Name -->
+                    <div>
+                        <label for="contactName" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                        <input type="text" id="contactName" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                    </div>
+                    <!-- Contact (Email or WhatsApp) -->
+                    <div>
+                        <label for="contactInfo" class="block text-sm font-medium text-gray-700 mb-1">Contact (Email or WhatsApp Number)</label>
+                        <input type="text" id="contactInfo" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent">
+                    </div>
+                    <!-- Message -->
+                    <div>
+                        <label for="contactMessage" class="block text-sm font-medium text-gray-700 mb-1">Your Message</label>
+                        <textarea id="contactMessage" rows="4" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-accent focus:border-accent"></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full mt-6 bg-green-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:bg-green-600 transition duration-300 transform hover:scale-[1.01] flex items-center justify-center space-x-2">
+                    <!-- WhatsApp Icon SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.48 1.34 4.96L2 22l5.34-1.42c1.47.88 3.2 1.34 4.7 1.34 5.46 0 9.9-4.44 9.9-9.9C21.94 6.44 17.5 2 12.04 2zM17.03 16.7c-.12.33-.37.77-.66.86-.29.11-1.02.05-1.21-.06-.18-.11-1.12-.48-2.14-1.32-.97-.8-1.57-1.92-1.76-2.25-.19-.33-.02-.51.13-.66.14-.14.33-.37.49-.55.16-.18.23-.29.35-.49.12-.18.06-.33-.03-.49-.1-.18-.66-1.58-.91-2.16-.25-.58-.5-.49-.69-.49-.18 0-.41-.01-.6-.01-.19 0-.49.06-.75.32-.26.25-1 .97-1 2.37s1.02 2.75 1.16 2.94c.14.18 2.01 3.07 4.88 4.31 2.01.88 2.76.95 3.19.89.43-.06.94-.4.98-.71.04-.32.04-.59-.22-.72-.25-.11-.66-.27-.85-.38z"/></svg>
+                    <span>Send Message via WhatsApp</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
 
     <!-- Scripts --><script>
         // Register GSAP plugins (only ScrollToPlugin is needed now)
@@ -1591,7 +1644,7 @@
                 // Section Title (Enrollment Application)
                 doc.setFontSize(24);
                 doc.setFont('helvetica', 'bold');
-                // CHANGE 3: Changed title from "OFFICIAL ENROLLMENT FORM" to "ENROLLMENT FORM"
+                // Updated title
                 doc.text("ENROLLMENT FORM", contentX, y); 
                 y += 12;
 
@@ -1601,7 +1654,7 @@
                 doc.text("APPLICANT DETAILS", contentX, y);
                 y += 3;
 
-                // Gold Accent Separator - REMOVED BLACK LINE and kept only GOLD ACCENT
+                // Gold Accent Separator
                 doc.setDrawColor(...COLOR_ACCENT_GOLD);
                 doc.setLineWidth(1.5);
                 doc.line(contentX, y, contentX + 50, y); 
@@ -1701,7 +1754,7 @@
                 // Row for Full Address (Single, full width field)
                 addMinimalField("FULL ADDRESS", address.toUpperCase(), col1X, contentWidth, true);
                 
-                // CHANGE 2: Moved Agreement section closer to the footer
+                // Moved Agreement section closer to the footer
                 // Calculate position relative to the footer to ensure it fits perfectly.
                 const footerHeight = 25;
                 const agreementBlockHeight = 45; // Approx height needed for Agreement text + Signature block
@@ -1801,6 +1854,104 @@
             `;
         }
 
+        // --- NEW: Gallery Modal Functions ---
+        function openGalleryModal(event) {
+            if (event) event.preventDefault();
+            const modal = document.getElementById('gallery-modal');
+            if (modal) {
+                modal.classList.add('flex');
+                modal.classList.remove('hidden');
+                gsap.fromTo(modal.querySelector(':scope > div'), 
+                    { scale: 0.9, opacity: 0 }, 
+                    { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
+                );
+            }
+        }
+
+        function closeGalleryModal(event) {
+            const modal = document.getElementById('gallery-modal');
+            if (modal) {
+                if (!event || event.target === modal || event.type === 'click' && event.currentTarget.tagName === 'BUTTON') {
+                     gsap.to(modal.querySelector(':scope > div'), { 
+                         scale: 0.9, 
+                         opacity: 0, 
+                         duration: 0.2, 
+                         ease: "power2.in", 
+                         onComplete: () => {
+                             modal.classList.add('hidden');
+                             modal.classList.remove('flex');
+                         }
+                     });
+                }
+            }
+        }
+
+        // --- NEW: Contact Modal Functions ---
+        function openContactModal(event) {
+            if (event) event.preventDefault();
+            const modal = document.getElementById('contact-modal');
+            if (modal) {
+                modal.classList.add('flex');
+                modal.classList.remove('hidden');
+                gsap.fromTo(modal.querySelector(':scope > div'), 
+                    { scale: 0.9, opacity: 0 }, 
+                    { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
+                );
+                // Clear fields on open
+                document.getElementById('contactName').value = '';
+                document.getElementById('contactInfo').value = '';
+                document.getElementById('contactMessage').value = '';
+            }
+        }
+
+        function closeContactModal(event) {
+            const modal = document.getElementById('contact-modal');
+            if (modal) {
+                if (!event || event.target === modal || event.type === 'click' && event.currentTarget.tagName === 'BUTTON') {
+                     gsap.to(modal.querySelector(':scope > div'), { 
+                         scale: 0.9, 
+                         opacity: 0, 
+                         duration: 0.2, 
+                         ease: "power2.in", 
+                         onComplete: () => {
+                             modal.classList.add('hidden');
+                             modal.classList.remove('flex');
+                         }
+                     });
+                }
+            }
+        }
+        
+        // --- NEW: WhatsApp Message Function ---
+        function sendMessage(event) {
+            event.preventDefault();
+
+            const recipientNumber = '8075098945'; // Hardcoded number as requested
+            const name = document.getElementById('contactName').value.trim();
+            const info = document.getElementById('contactInfo').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
+
+            if (!name || !info || !message) {
+                // Rely on browser's required attribute validation
+                return;
+            }
+
+            // Construct the WhatsApp message content
+            const whatsappMessage = `Hello, I have a query from your website.\n\nName: ${name}\nContact: ${info}\n\nMessage: ${message}`;
+
+            // Encode the message for use in a URL
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+
+            // Construct the WhatsApp deep link
+            const whatsappUrl = `https://wa.me/${recipientNumber}?text=${encodedMessage}`;
+
+            // Open the WhatsApp link
+            window.open(whatsappUrl, '_blank');
+
+            // Optionally close the modal after redirecting
+            closeContactModal();
+        }
+
         // Add handler to close modal on Escape key press
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -1810,6 +1961,14 @@
                 // Also close mobile menu on Escape
                 if (document.getElementById('mobile-menu')?.classList.contains('active')) {
                     closeMobileMenu();
+                }
+                // NEW: Close gallery modal on escape
+                if (document.getElementById('gallery-modal')?.classList.contains('flex')) {
+                    closeGalleryModal();
+                }
+                 // NEW: Close contact modal on escape
+                if (document.getElementById('contact-modal')?.classList.contains('flex')) {
+                    closeContactModal();
                 }
             }
         });
