@@ -384,7 +384,7 @@
     </footer>
 
     <!-- Application Modal Structure --><div id="application-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] hidden items-center justify-center p-4" onclick="closeApplicationModal(event)">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 transform transition-transform duration-300 scale-95" onclick="event.stopPropagation()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 transform transition-transform duration-300 scale-95 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start border-b pb-4 mb-4">
                 <h3 class="text-3xl font-extrabold text-[var(--color-dark)]">Enrollment Application</h3>
                 <button onclick="closeApplicationModal()" class="text-gray-500 hover:text-gray-900 transition-colors">
@@ -1601,7 +1601,7 @@
                 doc.text("APPLICANT DETAILS", contentX, y);
                 y += 3;
 
-                // Gold Accent Separator
+                // Gold Accent Separator - REMOVED BLACK LINE and kept only GOLD ACCENT
                 doc.setDrawColor(...COLOR_ACCENT_GOLD);
                 doc.setLineWidth(1.5);
                 doc.line(contentX, y, contentX + 50, y); 
@@ -1613,7 +1613,6 @@
                 const colWidth = (contentWidth / 2) - 5; // Width of each column
 
                 // Function to add a single field line
-                // Optimized to reduce vertical space and remove unnecessary line drawing logic for full address.
                 const addMinimalField = (label, value, startX, width = colWidth, forceFullWidth = false) => {
                     const labelLineHeight = 5;
                     const valueLineHeight = 6;
@@ -1703,10 +1702,14 @@
                 addMinimalField("FULL ADDRESS", address.toUpperCase(), col1X, contentWidth, true);
                 
                 // CHANGE 2: Moved Agreement section closer to the footer
-                const spaceAboveFooter = doc.internal.pageSize.height - (y + 15 + 25); // y + margin + footerHeight
-                const agreementY = spaceAboveFooter > 20 ? doc.internal.pageSize.height - 70 : y + 15;
-
-                y = agreementY;
+                // Calculate position relative to the footer to ensure it fits perfectly.
+                const footerHeight = 25;
+                const agreementBlockHeight = 45; // Approx height needed for Agreement text + Signature block
+                
+                const minAgreementY = doc.internal.pageSize.height - footerHeight - agreementBlockHeight - 5; // 5mm margin
+                
+                // Set Y to the minimum acceptable position, or use the current Y if it's already lower (i.e., multiple pages)
+                y = Math.max(y + 8, minAgreementY); 
                 
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
@@ -1729,7 +1732,6 @@
 
                 // --- DRAW FOOTER CONTACT BLOCK (Highly Prominent) ---
                 
-                const footerHeight = 25;
                 const footerRectY = doc.internal.pageSize.height - footerHeight;
                 
                 // 1. Draw Gold Accent Bar at the top of the footer
