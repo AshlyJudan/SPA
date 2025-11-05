@@ -1558,9 +1558,10 @@
 
         // --- NEW: Quick Notification Function (Used on Success Screen) ---
         function sendQuickNotification(name, phone) {
+            // Use native whatsapp URI for better mobile compatibility
             const message = `*NEW APPLICATION SUBMITTED!* 📋\n\nName: ${name}\nContact: ${phone}\n\n*Action Required:* Please contact this applicant immediately, as they have finished filling out the application form.`;
             const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${ADMISSIONS_WHATSAPP}?text=${encodedMessage}`;
+            const whatsappUrl = `whatsapp://send?phone=${ADMISSIONS_WHATSAPP}&text=${encodedMessage}`;
             window.open(whatsappUrl, '_blank');
         }
 
@@ -1661,7 +1662,6 @@
                 // Section Title (Enrollment Application)
                 doc.setFontSize(24);
                 doc.setFont('helvetica', 'bold');
-                // Updated title
                 doc.text("ENROLLMENT FORM", contentX, y); 
                 y += 12;
 
@@ -1963,8 +1963,8 @@
             // Encode the message for use in a URL
             const encodedMessage = encodeURIComponent(whatsappMessage);
 
-            // Construct the WhatsApp deep link
-            const whatsappUrl = `https://wa.me/${recipientNumber}?text=${encodedMessage}`;
+            // Use the native URI scheme for mobile reliability
+            const whatsappUrl = `whatsapp://send?phone=${recipientNumber}&text=${encodedMessage}`;
 
             // Open the WhatsApp link
             window.open(whatsappUrl, '_blank');
