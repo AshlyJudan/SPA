@@ -182,7 +182,6 @@
             <!-- Enhanced Navigation (Desktop) --><nav class="hidden md:flex space-x-8 font-medium text-white items-center">
                 <a href="#course-overview" class="nav-link hover:text-accent transition duration-300 relative group py-1">Overview<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
                 <a href="#syllabus" class="nav-link hover:text-accent transition duration-300 relative group py-1">Syllabus<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
-                <a href="#ai-renderer" class="nav-link hover:text-accent transition duration-300 relative group py-1">AI Renderer 🎨<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
                 <a href="#" onclick="openGalleryModal(event)" class="nav-link hover:text-accent transition duration-300 relative group py-1">Gallery<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
                 <a href="#" onclick="openContactModal(event)" class="nav-link hover:text-accent transition duration-300 relative group py-1">Contact<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
             </nav>
@@ -202,7 +201,6 @@
         <nav class="flex flex-col space-y-6 text-center">
             <a href="#course-overview" onclick="closeMobileMenu()" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Overview</a>
             <a href="#syllabus" onclick="closeMobileMenu()" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Syllabus</a>
-            <a href="#ai-renderer" onclick="closeMobileMenu()" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">AI Renderer 🎨</a>
             <a href="#" onclick="openGalleryModal(event); closeMobileMenu();" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Gallery</a>
             <a href="#" onclick="openContactModal(event); closeMobileMenu();" class="nav-link-mobile text-white text-2xl font-medium hover:text-accent transition duration-300">Contact</a>
             
@@ -340,34 +338,7 @@
         </div>
     </section>
 
-    <!-- AI Rendering Tool Section --><section id="ai-renderer" class="py-16 md:py-24">
-        <div class="max-w-4xl mx-auto px-4">
-            <h2 class="text-4xl font-bold text-center mb-12">🎨 AI-Assisted Rendering Tool</h2>
-            <p class="text-lg text-gray-600 text-center mb-8">
-                Instantly visualize design concepts. Describe the scene (e.g., "Minimalist living room, walnut cabinets, soft ambient lighting") to generate a photo-realistic render draft using advanced AI modeling.
-            </p>
-
-            <div class="bg-cream p-6 md:p-8 rounded-2xl shadow-xl border border-gray-200">
-                <div class="flex flex-col space-y-4">
-                    <input type="text" id="render-prompt" placeholder="E.g., High-end modular kitchen with brass fittings and marble countertop" 
-                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent"
-                               value="Modern office furniture unit with a black and gold finish, realistic shadows, photorealistic 8k">
-                    
-                    <button id="generate-render-btn" onclick="generateAIAssistedRender()" 
-                                class="w-full bg-accent text-[var(--color-dark)] font-semibold py-3 px-6 rounded-lg hover:bg-yellow-400 transition duration-300 flex items-center justify-center space-x-2">
-                        <span>Generate Render Draft</span>
-                        <div id="loading-spinner-4" class="spinner ml-2"></div>
-                    </button>
-                </div>
-
-                <!-- Result Area --><div id="render-result" class="mt-8 pt-4 border-t border-gray-200 hidden text-center">
-                    <h4 class="text-xl font-bold mb-3 text-accent">Generated Visualization:</h4>
-                    <img id="generated-image" src="" alt="Generated AI Render" class="w-full h-auto max-h-[500px] object-contain mx-auto rounded-xl shadow-lg border border-gray-300"/>
-                    <p id="render-status" class="text-gray-500 text-sm mt-3 hidden">Image generated successfully.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- AI Rendering Tool Section REMOVED -->
 
     <!-- 5. Contact/CTA Footer --><section id="contact" class="bg-accent py-16">
         <div class="max-w-4xl mx-auto text-center px-4">
@@ -375,11 +346,33 @@
             <p class="text-lg mb-8 text-[var(--color-dark)]">
                 Enroll in the next batch at Surabhi Pytha Academy and transform your professional future.
             </p>
-            <button onclick="openApplicationModal()" class="bg-white text-[var(--color-dark)] font-bold py-3 px-10 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:scale-105">Contact Admissions Today</button>
+            <!-- Button Container -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <button onclick="openApplicationModal()" class="bg-white text-[var(--color-dark)] font-bold py-3 px-10 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 transform hover:scale-105 w-full sm:w-auto">Contact Admissions Today</button>
+                <button onclick="openContactModal(event)" class="bg-transparent text-[var(--color-dark)] border-2 border-[var(--color-dark)] font-bold py-3 px-10 rounded-xl shadow-lg hover:bg-white/30 transition duration-300 transform hover:scale-105 w-full sm:w-auto">Contact Administrator</button>
+            </div>
         </div>
     </section>
 
     <!-- Footer --><footer class="bg-[var(--color-dark)] text-gray-400 py-8">
+        <!-- Social Media Links -->
+        <div class="max-w-6xl mx-auto px-4 text-center mb-4">
+            <a href="https://www.youtube.com/@SURABHIPYTHAACADEMY" target="_blank" rel="noopener noreferrer" class="inline-block mx-3 text-gray-400 hover:text-accent transition-colors duration-300" aria-label="YouTube">
+                <!-- Hand-sketched style YouTube Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.54 6.42a2.76 2.76 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.76 2.76 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.76 2.76 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.76 2.76 0 0 0 1.94-2A29 29 0 0 0 23 11.75a29 29 0 0 0-.46-5.33z"></path>
+                    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+                </svg>
+            </a>
+            <a href="https://www.instagram.com/surabhi.pytha.academy/?hl=en" target="_blank" rel="noopener noreferrer" class="inline-block mx-3 text-gray-400 hover:text-accent transition-colors duration-300" aria-label="Instagram">
+                <!-- Hand-sketched style Instagram Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+            </a>
+        </div>
         <div class="max-w-6xl mx-auto px-4 text-center text-sm">
             &copy; 2024 Surabhi Pytha Academy. All Rights Reserved. | Training powered by Pytha 3D CAD expertise.
         </div>
@@ -527,7 +520,7 @@
                                 <option value="HM">Heard Island and McDonald Islands</option>
                                 <option value="VA">Holy See (Vatican City State)</option>
                                 <option value="HN">Honduras</option>
-                                <option value_no_="HK">Hong Kong</option>
+                                <option value="HK">Hong Kong</option>
                                 <option value="HU">Hungary</option>
                                 <option value="IS">Iceland</option>
                                 <option value="IN" selected>India</option>
@@ -669,7 +662,7 @@
                                 <option value="VU">Vanuatu</option>
                                 <option value="VE">Venezuela</option>
                                 <option value="VN">Viet Nam</option>
-                                <option valueba="VG">Virgin Islands (British)</option>
+                                <option value="VG">Virgin Islands (British)</option>
                                 <option value="VI">Virgin Islands (U.S.)</option>
                                 <option value="WF">Wallis and Futuna</option>
                                 <option value="EH">Western Sahara</option>
@@ -818,7 +811,6 @@
         const apiKey = ""; // <--- AI Renderer will FAIL without a valid key.
         // --- !!! CRITICAL: PASTE YOUR API KEY HERE !!! ---
         
-        const imageApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
         
         // Get Header Element
         const header = document.getElementById('main-header');
@@ -1364,79 +1356,7 @@
         }
 
         
-        // --- AI RENDERING FUNCTION ---
-        async function generateAIAssistedRender() {
-            const promptInput = document.getElementById('render-prompt');
-            const resultDiv = document.getElementById('render-result');
-            const imageElement = document.getElementById('generated-image');
-            const statusElement = document.getElementById('render-status');
-            
-            if (!promptInput || !resultDiv || !imageElement || !statusElement) return;
-
-            // Check for API Key
-            if (apiKey.trim() === "") {
-                statusElement.textContent = `Error: API key is missing. Please add your API key to the script.`;
-                statusElement.classList.remove('hidden');
-                resultDiv.classList.remove('hidden');
-                imageElement.src = "https://placehold.co/400x400/ef4444/ffffff?text=API+KEY+MISSING";
-                console.error("API Key is missing.");
-                updateUIForLoading('loading-spinner-4', 'generate-render-btn', false);
-                return; // Stop execution
-            }
-
-            const userPrompt = promptInput.value.trim();
-            if (!userPrompt) return;
-
-            // 1. Loading State
-            updateUIForLoading('loading-spinner-4', 'generate-render-btn', true, 'Generating...');
-            resultDiv.classList.add('hidden');
-            imageElement.src = '';
-            statusElement.classList.add('hidden');
-            statusElement.textContent = 'Generating Image...';
-
-            // 2. API Payload (Imagen 3.0)
-            const payload = { 
-                instances: [{ prompt: "CAD focused, professional interior design render of " + userPrompt }], 
-                parameters: { 
-                    "sampleCount": 1,
-                    "aspectRatio": "1:1", // Standard aspect ratio
-                } 
-            };
-            
-            try {
-                const response = await fetchWithRetry(imageApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const prediction = response.predictions?.[0];
-                const base64Data = prediction?.bytesBase64Encoded;
-
-                if (base64Data) {
-                    const imageUrl = `data:image/png;base64,${base64Data}`;
-                    imageElement.src = imageUrl;
-                    statusElement.textContent = 'Render completed successfully.';
-                    resultDiv.classList.remove('hidden');
-                    statusElement.classList.remove('hidden');
-                } else {
-                    statusElement.textContent = 'Error: Could not generate image. Response was empty.';
-                    statusElement.classList.remove('hidden');
-                    resultDiv.classList.remove('hidden');
-                    imageElement.src = "https://placehold.co/400x400/ef4444/ffffff?text=GENERATION+FAILED";
-                }
-
-            } catch (error) {
-                statusElement.textContent = `Error: Image generation failed. Please try a different prompt. (${error.message})`;
-                statusElement.classList.remove('hidden');
-                resultDiv.classList.remove('hidden');
-                imageElement.src = "https://placehold.co/400x400/ef4444/ffffff?text=GENERATION+FAILED";
-                console.error("Image API Call Error:", error);
-            } finally {
-                // 3. Reset Loading State
-                updateUIForLoading('loading-spinner-4', 'generate-render-btn', false);
-            }
-        }
+        // --- AI RENDERING FUNCTION (REMOVED) ---
         
         
         // --- Application Modal Logic ---
