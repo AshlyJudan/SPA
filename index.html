@@ -511,9 +511,19 @@
     
     <div id="team-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] hidden items-center justify-center p-4" onclick="closeTeamModal(event)">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center transform transition-transform duration-300 scale-95" onclick="event.stopPropagation()">
-            <h3 class="text-3xl font-extrabold text-[var(--color-dark)] mb-4">Meet Our Team</h3>
-            <p class="text-xl text-accent font-semibold mb-6">Coming Soon!</p>
-            <p class="text-gray-700 mb-6">We are currently updating our faculty and staff profiles. Check back soon!</p>
+            <h3 class="text-3xl font-extrabold text-[var(--color-dark)] mb-6">Meet Our Team</h3>
+            
+            <div class="flex flex-col items-center mb-6">
+                <div class="w-40 h-48 rounded-2xl overflow-hidden border-4 border-accent shadow-lg mb-4 bg-gray-100 flex items-center justify-center">
+                     <img src="https://drive.google.com/thumbnail?id=1zv5HNXvnp3PS1LTbPEkwOZF3h4YuYpz6&sz=w1000" 
+                          alt="Ashly Judan" 
+                          class="w-full h-full object-cover"
+                          onerror="this.onerror=null; this.src='https://via.placeholder.com/150?text=Ashly+Judan';">
+                </div>
+                <h4 class="text-xl font-extrabold text-[var(--color-dark)] uppercase">Ashly Judan</h4>
+                <p class="text-gray-600 font-medium">Director and Training Expert</p>
+            </div>
+
             <button onclick="closeTeamModal()" class="bg-[var(--color-dark)] text-white font-bold py-2 px-6 rounded-xl hover:bg-gray-800 transition duration-300">Close</button>
         </div>
     </div>
@@ -1014,7 +1024,7 @@
         function openGalleryModal(e) { if(e) e.preventDefault(); const m=document.getElementById('gallery-modal'); m.classList.add('flex'); m.classList.remove('hidden'); gsap.fromTo(m.children[0],{scale:0.9,opacity:0},{scale:1,opacity:1,duration:0.3}); }
         function closeGalleryModal(e) { const m=document.getElementById('gallery-modal'); if(!e||e.target===m||e.currentTarget.tagName==='BUTTON'){gsap.to(m.children[0],{scale:0.9,opacity:0,duration:0.2,onComplete:()=>{m.classList.add('hidden');m.classList.remove('flex')}});} }
 
-        // --- ADDED NEW TEAM MODAL FUNCTIONS ---
+        // --- UPDATED TEAM MODAL FUNCTIONS ---
         function openTeamModal(e) { if(e) e.preventDefault(); const m=document.getElementById('team-modal'); m.classList.add('flex'); m.classList.remove('hidden'); gsap.fromTo(m.children[0],{scale:0.9,opacity:0},{scale:1,opacity:1,duration:0.3}); }
         function closeTeamModal(e) { const m=document.getElementById('team-modal'); if(!e||e.target===m||e.currentTarget.tagName==='BUTTON'){gsap.to(m.children[0],{scale:0.9,opacity:0,duration:0.2,onComplete:()=>{m.classList.add('hidden');m.classList.remove('flex')}});} }
 
