@@ -124,6 +124,9 @@
             <nav class="hidden md:flex space-x-8 font-medium text-white items-center">
                 <a href="#course-overview" class="nav-link hover:text-accent transition duration-300 relative group py-1">Overview<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
                 <a href="#syllabus" class="nav-link hover:text-accent transition duration-300 relative group py-1">Syllabus<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
+                
+                <a href="#" onclick="openTeamModal(event)" class="nav-link hover:text-accent transition duration-300 relative group py-1">Our Team<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
+                
                 <a href="#" onclick="openGalleryModal(event)" class="nav-link hover:text-accent transition duration-300 relative group py-1">Gallery<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
                 <a href="#" onclick="openContactModal(event)" class="nav-link hover:text-accent transition duration-300 relative group py-1">Contact<span class="absolute bottom-0 left-0 w-full h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a>
             </nav>
@@ -149,6 +152,9 @@
         <nav class="flex flex-col w-full max-w-sm text-center">
             <a href="#course-overview" onclick="closeMobileMenu()" class="nav-link-mobile text-white text-2xl font-semibold py-4 border-b border-gray-800 hover:text-accent transition duration-300">Overview</a>
             <a href="#syllabus" onclick="closeMobileMenu()" class="nav-link-mobile text-white text-2xl font-semibold py-4 border-b border-gray-800 hover:text-accent transition duration-300">Syllabus</a>
+            
+            <a href="#" onclick="openTeamModal(event); closeMobileMenu();" class="nav-link-mobile text-white text-2xl font-semibold py-4 border-b border-gray-800 hover:text-accent transition duration-300">Our Team</a>
+            
             <a href="#" onclick="openGalleryModal(event); closeMobileMenu();" class="nav-link-mobile text-white text-2xl font-semibold py-4 border-b border-gray-800 hover:text-accent transition duration-300">Gallery</a>
             <a href="#" onclick="openContactModal(event); closeMobileMenu();" class="nav-link-mobile text-white text-2xl font-semibold py-4 border-b border-gray-800 hover:text-accent transition duration-300">Contact</a>
             
@@ -214,7 +220,7 @@
                     <h3 class="text-xl font-semibold mb-2">PRESENTATION</h3>
                     <p class="text-gray-600 text-sm">Master scene setup, camera angles, lighting (HDRI), texture creation, and high-end 360 Degree Panorama rendering for client visualization.</p>
                 </div>
-                   <div class="pillar-card p-6 bg-white rounded-xl shadow-lg border-t-4 border-accent transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
+                    <div class="pillar-card p-6 bg-white rounded-xl shadow-lg border-t-4 border-accent transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
                     <span class="text-3xl font-extrabold text-accent mb-2 block">03</span>
                     <h3 class="text-xl font-semibold mb-2">PLOTTING</h3>
                     <p class="text-gray-600 text-sm">Develop technical drawings, 2D drafting, assembly diagrams, and associative sections complete with professional title blocks and pen settings.</p>
@@ -238,6 +244,7 @@
                     <p class="text-lg text-gray-700 leading-relaxed">
                         PYTHA is a powerful, "Made in Germany" 3D CAD system specifically designed for high-end wood working, furniture design, and commercial joinery. Unlike generic CAD tools, PYTHA offers a true <span class="font-semibold text-accent">One-Stop Solution</span>:
                     </p>
+                    
                     <ul class="space-y-3">
                         <li class="flex items-start">
                             <svg class="h-6 w-6 text-accent mr-2 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -261,6 +268,7 @@
                 </div>
 
                 <div class="relative w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-100 bg-black aspect-video group">
+                    
                     <iframe 
                         src="https://drive.google.com/file/d/11VFU5YzoopDGQ6Uf1INVwj-NP6NLWakl/preview" 
                         width="100%" 
@@ -270,6 +278,9 @@
                         allowfullscreen
                         title="Pytha 3D CAD Overview">
                     </iframe>
+
+                    <div class="absolute top-0 right-0 w-24 h-24 z-20 bg-transparent cursor-default"></div>
+                    
                 </div>
             </div>
         </div>
@@ -497,6 +508,15 @@
             <button onclick="closeGalleryModal()" class="bg-[var(--color-dark)] text-white font-bold py-2 px-6 rounded-xl hover:bg-gray-800 transition duration-300">Close</button>
         </div>
     </div>
+    
+    <div id="team-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] hidden items-center justify-center p-4" onclick="closeTeamModal(event)">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center transform transition-transform duration-300 scale-95" onclick="event.stopPropagation()">
+            <h3 class="text-3xl font-extrabold text-[var(--color-dark)] mb-4">Meet Our Team</h3>
+            <p class="text-xl text-accent font-semibold mb-6">Coming Soon!</p>
+            <p class="text-gray-700 mb-6">We are currently updating our faculty and staff profiles. Check back soon!</p>
+            <button onclick="closeTeamModal()" class="bg-[var(--color-dark)] text-white font-bold py-2 px-6 rounded-xl hover:bg-gray-800 transition duration-300">Close</button>
+        </div>
+    </div>
 
     <div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] hidden items-center justify-center p-4" onclick="closeContactModal(event)">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 transform transition-transform duration-300 scale-95" onclick="event.stopPropagation()">
@@ -714,8 +734,8 @@
                 if (file.name.toLowerCase().endsWith('.obj')) {
                     loadObjFile(file, new THREE.MeshPhongMaterial({ color: 0x000000, shininess: 50 }));
                 } else {
-                     displayDropMessage(`Unsupported file type. Only .obj files are supported.`, true);
-                     loadRealisticChairModel(); 
+                      displayDropMessage(`Unsupported file type. Only .obj files are supported.`, true);
+                      loadRealisticChairModel(); 
                 }
             }, false);
         }
@@ -909,7 +929,7 @@
             const modal = document.getElementById('application-modal');
             if (modal) {
                 if (!event || event.target === modal || event.type === 'click' && event.currentTarget.tagName === 'BUTTON') {
-                     gsap.to(modal.querySelector(':scope > div'), { scale: 0.9, opacity: 0, duration: 0.2, ease: "power2.in", onComplete: () => { modal.classList.add('hidden'); modal.classList.remove('flex'); } });
+                      gsap.to(modal.querySelector(':scope > div'), { scale: 0.9, opacity: 0, duration: 0.2, ease: "power2.in", onComplete: () => { modal.classList.add('hidden'); modal.classList.remove('flex'); } });
                 }
             }
         }
@@ -994,6 +1014,10 @@
         function openGalleryModal(e) { if(e) e.preventDefault(); const m=document.getElementById('gallery-modal'); m.classList.add('flex'); m.classList.remove('hidden'); gsap.fromTo(m.children[0],{scale:0.9,opacity:0},{scale:1,opacity:1,duration:0.3}); }
         function closeGalleryModal(e) { const m=document.getElementById('gallery-modal'); if(!e||e.target===m||e.currentTarget.tagName==='BUTTON'){gsap.to(m.children[0],{scale:0.9,opacity:0,duration:0.2,onComplete:()=>{m.classList.add('hidden');m.classList.remove('flex')}});} }
 
+        // --- ADDED NEW TEAM MODAL FUNCTIONS ---
+        function openTeamModal(e) { if(e) e.preventDefault(); const m=document.getElementById('team-modal'); m.classList.add('flex'); m.classList.remove('hidden'); gsap.fromTo(m.children[0],{scale:0.9,opacity:0},{scale:1,opacity:1,duration:0.3}); }
+        function closeTeamModal(e) { const m=document.getElementById('team-modal'); if(!e||e.target===m||e.currentTarget.tagName==='BUTTON'){gsap.to(m.children[0],{scale:0.9,opacity:0,duration:0.2,onComplete:()=>{m.classList.add('hidden');m.classList.remove('flex')}});} }
+
         function openContactModal(e) { if(e) e.preventDefault(); const m=document.getElementById('contact-modal'); m.classList.add('flex'); m.classList.remove('hidden'); gsap.fromTo(m.children[0],{scale:0.9,opacity:0},{scale:1,opacity:1,duration:0.3}); }
         function closeContactModal(e) { const m=document.getElementById('contact-modal'); if(!e||e.target===m||e.currentTarget.tagName==='BUTTON'){gsap.to(m.children[0],{scale:0.9,opacity:0,duration:0.2,onComplete:()=>{m.classList.add('hidden');m.classList.remove('flex')}});} }
         
@@ -1006,7 +1030,7 @@
             closeContactModal();
         }
 
-        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeApplicationModal(); closeMobileMenu(); closeGalleryModal(); closeContactModal(); } });
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeApplicationModal(); closeMobileMenu(); closeGalleryModal(); closeContactModal(); closeTeamModal(); } });
 
         window.onload = function() {
             setCSSHeaderHeight();
